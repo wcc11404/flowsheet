@@ -189,6 +189,8 @@
     <ClInclude Include="flowsheetDoc.h" />
     <ClInclude Include="flowsheetView.h" />
     <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="object.h" />
+    <ClInclude Include="objectManager.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -198,6 +200,8 @@
     <ClCompile Include="flowsheetDoc.cpp" />
     <ClCompile Include="flowsheetView.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="object.cpp" />
+    <ClCompile Include="objectManager.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
