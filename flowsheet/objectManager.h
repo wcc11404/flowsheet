@@ -19,5 +19,5 @@ public:
 	void  onRelease(int x, int y);		//   Û±Í Õ∑≈
 	//std::string onSave() { return ""; }
 
-	object* onCreate(int object_ID, int x = 0, int y = 0, int w = 0, int h = 0, int color = RGB(255, 255, 255), int width = 1);
+	object* onCreate(int object_ID, int x, int y, int w, int h, int color, int width);
 };
