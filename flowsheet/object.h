@@ -1,5 +1,21 @@
 #pragma once
 #include "stdafx.h"
+class arrowline;
+
+class objectpoint
+{
+public:
+	int x;
+	int y;
+	int r;
+	arrowline* al;
+	int toward;		//0代表没有线，1代表入，2代表出
+
+	objectpoint(int x,int y);
+	int onPress(int x, int y);
+	int onRelease(int x, int y);
+	void offset(int dx, int dy);
+};
 
 class object
 {
@@ -8,74 +24,83 @@ public:
 	double width;	//线宽
 	int color;		//颜色
 	CPen pen;	//画笔
-	//bool establish;		//是否被创建中
-	object(int l, int u, int r, int d, int color, int width);
+	objectpoint *op[4];
+
+	bool hold;
+	bool curse;
+	object(int ID, int l, int u, int r, int d, int color, int width);
 
 	void onSize(int l, int r, int u, int d);
 	void offset(int dx, int dy);
+	//void deleteobject();
+	int getID() { return ID; }
 
 	virtual void onDraw(CDC* pDC) {}
-	virtual int  onPress(int x, int y) { return 0; }		//  鼠标按下
-	virtual int   onMove(int dx, int dy) { return 0; }		//  鼠标移动
-	virtual void  onRelease(int x, int y) {}		//  鼠标释放
+	virtual int onPress(int x, int y) { return 0; }		//  鼠标按下
+	virtual int onMove(int dx, int dy) { return 0; }		//  鼠标移动
+	virtual int onRelease(int x, int y) { return 0; }		//  鼠标释放
 	virtual std::string onSave() { return ""; }
+
+private:
+	int ID;
 };
 
 class start :public object
 {
 public:
-	bool click;
-
-	start(int x, int y, int w, int h, int color, int width);
+	start(int ID, int x, int y, int w, int h, int color, int width);
 
 	void onDraw(CDC* pDC);
 	int onPress(int x, int y);
-	int   onMove(int dx, int dy);
-	void  onRelease(int x, int y);
+	int onMove(int dx, int dy);
+	int onRelease(int x, int y);
 	std::string onSave();
 };
 
 class end :public object
 {
 public:
-	bool click;
-
-	end(int x, int y, int w, int h, int color, int width);
+	end(int ID, int x, int y, int w, int h, int color, int width);
 
 	void onDraw(CDC* pDC);
 	int onPress(int x, int y);
-	int   onMove(int dx, int dy);
-	void  onRelease(int x, int y);
+	int onMove(int dx, int dy);
+	int onRelease(int x, int y);
 	std::string onSave();
 };
 
 class unit:public object
 {
 public:
-	bool click;
-
-	unit(int x, int y, int w, int h, int color, int width);
+	unit(int ID, int x, int y, int w, int h, int color, int width);
 
 	virtual void onDraw(CDC* pDC) {}
 	virtual int  onPress(int x, int y) { return 0; }		//  鼠标按下
-	virtual int   onMove(int dx, int dy) { return 0; }		//  鼠标移动
-	virtual void  onRelease(int x, int y) {}		//  鼠标释放
+	virtual int onMove(int dx, int dy) { return 0; }		//  鼠标移动
+	virtual int onRelease(int x, int y) { return 0; }		//  鼠标释放
 	virtual std::string onSave() { return ""; }
 };
 
 class arrowline :public object
 {
 public:
-	bool click[3];		//是否被选中
 	int angle;			//箭头头部角度
-	double length;			//箭头头部占直线长度
+	double length;		//箭头头部直线长度
 	int lx, ly, rx, ry;	//存储另外两个端点
 
-	arrowline(int x, int y, int w, int h, int a, int l, int color, int width);
+	object* o_in;		//箭头入方向
+	int num_in;
+
+	object* o_out;		//箭头出方向
+	int num_out;
+
+	arrowline(int ID, int x, int y, int r, int d, int a, int l, int color, int width);
 	void onDraw(CDC* pDC);
-	int onPress(int x, int y);
-	int   onMove(int dx, int dy);
-	void  onRelease(int x, int y);
+	int onPress(int x, int y);			//暂时不用
+	int onMove(int dx, int dy);			//暂时不用
+	int onRelease(int x, int y);		//暂时不用
+	void change(int type,int dx, int dy);			//type=1时，改变left和up的值，type=2时改变right和down的值
+	void deleteline();
 	std::string onSave();
 
 private:

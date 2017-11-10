@@ -2,9 +2,8 @@
 // flowsheetDoc.h : CflowsheetDoc 类的接口
 //
 
-
 #pragma once
-
+#include "objectManager.h"
 
 class CflowsheetDoc : public CDocument
 {
@@ -14,7 +13,8 @@ protected: // 仅从序列化创建
 
 // 特性
 public:
-
+	objectManager obm;
+	int x, y;
 // 操作
 public:
 

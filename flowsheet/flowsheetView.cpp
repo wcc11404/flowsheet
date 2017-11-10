@@ -1,10 +1,10 @@
-
-// flowsheetView.cpp : CflowsheetView ���ʵ��
+﻿
+// flowsheetView.cpp : CflowsheetView 类的实现
 //
 
 #include "stdafx.h"
-// SHARED_HANDLERS ������ʵ��Ԥ��������ͼ������ɸѡ�������
-// ATL ��Ŀ�н��ж��壬�����������Ŀ�����ĵ����롣
+// SHARED_HANDLERS 可以在实现预览、缩略图和搜索筛选器句柄的
+// ATL 项目中进行定义，并允许与该项目共享文档代码。
 #ifndef SHARED_HANDLERS
 #include "flowsheet.h"
 #endif
@@ -16,23 +16,29 @@
 #define new DEBUG_NEW
 #endif
 
-
+#include "object.h"
 // CflowsheetView
 
 IMPLEMENT_DYNCREATE(CflowsheetView, CView)
 
 BEGIN_MESSAGE_MAP(CflowsheetView, CView)
-	// ��׼��ӡ����
+	// 标准打印命令
 	ON_COMMAND(ID_FILE_PRINT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CView::OnFilePrintPreview)
+	ON_WM_ERASEBKGND()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONUP()
+	ON_WM_LBUTTONDBLCLK()
+	ON_WM_MOUSEMOVE()
+ON_WM_KEYUP()
 END_MESSAGE_MAP()
 
-// CflowsheetView ����/����
+// CflowsheetView 构造/析构
 
 CflowsheetView::CflowsheetView()
 {
-	// TODO: �ڴ˴����ӹ������
+	// TODO: 在此处添加构造代码
 
 }
 
@@ -42,45 +48,71 @@ CflowsheetView::~CflowsheetView()
 
 BOOL CflowsheetView::PreCreateWindow(CREATESTRUCT& cs)
 {
-	// TODO: �ڴ˴�ͨ���޸�
-	//  CREATESTRUCT cs ���޸Ĵ��������ʽ
+	// TODO: 在此处通过修改
+	//  CREATESTRUCT cs 来修改窗口类或样式
 
 	return CView::PreCreateWindow(cs);
 }
 
-// CflowsheetView ����
+// CflowsheetView 绘制
 
-void CflowsheetView::OnDraw(CDC* /*pDC*/)
+void CflowsheetView::OnDraw(CDC* pDC)
 {
 	CflowsheetDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
 
-	// TODO: �ڴ˴�Ϊ�����������ӻ��ƴ���
+	// TODO: 在此处为本机数据添加绘制代码
+	CDC MemDC; //首先定义一个显示设备对象 
+	CBitmap MemBitmap;//定义一个位图对象 
+
+					  //随后建立与屏幕显示兼容的内存显示设备 
+	MemDC.CreateCompatibleDC(NULL);
+	//这时还不能绘图，因为没有地方画 ^_^ 
+	//下面建立一个与屏幕显示兼容的位图，至于位图的大小嘛，可以用窗口的大小 
+	LPRECT lpRect = new RECT();
+	pDC->GetWindow()->GetWindowRect(lpRect);
+	MemBitmap.CreateCompatibleBitmap(pDC, lpRect->right - lpRect->left, lpRect->bottom - lpRect->top);		//获取绘图区域大小
+
+																											//将位图选入到内存显示设备中 
+																											//只有选入了位图的内存显示设备才有地方绘图，画到指定的位图上 
+	CBitmap *pOldBit = MemDC.SelectObject(&MemBitmap);
+
+	//先用背景色将位图清除干净，这里我用的是白色作为背景 
+	//你也可以用自己应该用的颜色 
+	MemDC.FillSolidRect(0, 0, lpRect->right - lpRect->left, lpRect->bottom - lpRect->top, RGB(255, 255, 255));
+
+	GetDocument()->obm.onDraw(&MemDC);
+
+	pDC->BitBlt(0, 0, lpRect->right - lpRect->left, lpRect->bottom - lpRect->top, &MemDC, 0, 0, SRCCOPY);
+
+	//绘图完成后的清理 
+	MemBitmap.DeleteObject();
+	MemDC.DeleteDC();
 }
 
 
-// CflowsheetView ��ӡ
+// CflowsheetView 打印
 
 BOOL CflowsheetView::OnPreparePrinting(CPrintInfo* pInfo)
 {
-	// Ĭ��׼��
+	// 默认准备
 	return DoPreparePrinting(pInfo);
 }
 
 void CflowsheetView::OnBeginPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
 {
-	// TODO: ���Ӷ���Ĵ�ӡǰ���еĳ�ʼ������
+	// TODO: 添加额外的打印前进行的初始化过程
 }
 
 void CflowsheetView::OnEndPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
 {
-	// TODO: ���Ӵ�ӡ����е���������
+	// TODO: 添加打印后进行的清理过程
 }
 
 
-// CflowsheetView ���
+// CflowsheetView 诊断
 
 #ifdef _DEBUG
 void CflowsheetView::AssertValid() const
@@ -93,7 +125,7 @@ void CflowsheetView::Dump(CDumpContext& dc) const
 	CView::Dump(dc);
 }
 
-CflowsheetDoc* CflowsheetView::GetDocument() const // �ǵ��԰汾��������
+CflowsheetDoc* CflowsheetView::GetDocument() const // 非调试版本是内联的
 {
 	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CflowsheetDoc)));
 	return (CflowsheetDoc*)m_pDocument;
@@ -101,4 +133,67 @@ CflowsheetDoc* CflowsheetView::GetDocument() const // �ǵ��԰汾��������
 #endif //_DEBUG
 
 
-// CflowsheetView ��Ϣ��������
+// CflowsheetView 消息处理程序
+
+
+BOOL CflowsheetView::OnEraseBkgnd(CDC* pDC)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+
+	//return CView::OnEraseBkgnd(pDC);
+	return true;
+}
+
+
+void CflowsheetView::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	GetDocument()->obm.onPress(point.x, point.y);
+	GetDocument()->x = point.x;
+	GetDocument()->y = point.y;
+	CView::OnLButtonDown(nFlags, point);
+}
+
+
+void CflowsheetView::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	int re=GetDocument()->obm.onRelease(point.x, point.y);
+	if(re)
+		Invalidate();
+	CView::OnLButtonUp(nFlags, point);
+}
+
+
+void CflowsheetView::OnLButtonDblClk(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+
+	CView::OnLButtonDblClk(nFlags, point);
+}
+
+
+void CflowsheetView::OnMouseMove(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	int re=GetDocument()->obm.onMove(point.x - GetDocument()->x, point.y - GetDocument()->y);
+	if (re) {
+		Invalidate();
+		GetDocument()->x = point.x;
+		GetDocument()->y = point.y;
+	}
+	CView::OnMouseMove(nFlags, point);
+}
+
+
+void CflowsheetView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	int re=GetDocument()->obm.onKey(nChar);
+	if (re)
+		Invalidate();
+	/*char temp[80];
+	sprintf(temp, "%d", nChar);
+	MessageBox(temp);*/
+	CView::OnKeyUp(nChar, nRepCnt, nFlags);
+}

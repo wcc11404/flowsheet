@@ -45,6 +45,9 @@
     <ClInclude Include="objectManager.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="toolbar.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="flowsheet.cpp">

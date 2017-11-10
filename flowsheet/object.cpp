@@ -1,14 +1,53 @@
 #include "stdafx.h"
 #include "object.h"
 
-object::object(int l, int u, int r, int d, int color, int width) {
+objectpoint::objectpoint(int x, int y) {
+	this->x = x;
+	this->y = y;
+	al = NULL;
+	toward = 0;
+	r = 5;		//在点附近半径为r的区域点击都算
+}
+
+int objectpoint::onPress(int x, int y) {
+	int dx = x - this->x;;
+	int dy = y - this->y;
+
+	double r = sqrt(dx*dx + dy*dy);
+
+	if (r <= this->r) {
+		return 1;
+	}
+	return 0;
+}
+
+int objectpoint::onRelease(int x, int y) {
+	return onPress(x, y);
+}
+
+void objectpoint::offset(int dx, int dy) {
+	x += dx;
+	y += dy;
+
+	al->change(toward, dx, dy);
+}
+/******************************     object     *********************************************/
+object::object(int ID, int l, int u, int r, int d, int color, int width) {
+	this->ID = ID;
 	this->width = width;
 	this->color = color;
-	pen.CreatePen(PS_DOT, width, color);
+	pen.CreatePen(PS_SOLID, width, color);
 	left = l;
 	up = u;
 	right = r;
 	down = d;
+	hold = false;
+	curse = false;
+	
+	op[0] = new objectpoint((l + r) / 2, u);
+	op[1] = new objectpoint(l, (u + d) / 2);
+	op[2] = new objectpoint((l + r) / 2, d);
+	op[3] = new objectpoint(r, (u + d) / 2);
 }
 
 void object::onSize(int l, int r, int u, int d) {
@@ -23,10 +62,18 @@ void object::offset(int dx, int dy) {
 	up += dy;		down += dy;
 }
 
+//void object::deleteobject() {
+//	for (int i = 0; i < 4; i++) {
+//		if (op[i] != NULL) {
+//			if(op[i]->al!=NULL)
+//				op[i]->al->deleteline();
+//		}
+//	}
+//}
+
 /******************************     start      *********************************************/
-start::start(int x, int y, int w, int h, int color, int width) :object(x, y, x + w, y + h, color, width) {
-	//establish = true;
-	click = false;
+start::start(int ID, int x, int y, int w, int h, int color, int width) :object(ID, x, y, x + w, y + h, color, width){
+	//op[2] = new objectpoint(x + w / 2, y + h);
 }
 
 void start::onDraw(CDC *pDC) {
@@ -47,23 +94,31 @@ int start::onPress(int x, int y) {
 	int dy2 = (ry - y)*(ry - y);
 	double dx = sqrt(dx2 + dy2);	//点击位置距离圆心的长度
 
-	if (dx <= rr + width / 2) {
-		click = true;
+	curse = false;
+	if (op[2]->onPress(x,y)) {
+		return 4;
+	}
+	else if(dx <= rr + width / 2) {
+		curse = true;
+		hold = true;
 		return 1;
 	}
 	return 0;
 }
 
 int start::onMove(int dx, int dy) {
-	if (click) {
+	if (hold) {
+		curse = false;
 		offset(dx, dy);
+		op[2]->offset(dx, dy);
 		return 1;
 	}
 	return 0;
 }
 
-void start::onRelease(int x, int y) {
-	click = false;
+int start::onRelease(int x, int y) {
+	hold = false;
+	return op[2]->onRelease(x, y)==1?2+1:0;
 }
 
 std::string start::onSave() {
@@ -75,9 +130,8 @@ std::string start::onSave() {
 }
 
 /******************************     end      *********************************************/
-end::end(int x, int y, int w, int h, int color, int width) :object(x, y, x + w, y + h, color, width) {
-	//establish = true;
-	click = false;
+end::end(int ID, int x, int y, int w, int h, int color, int width) :object(ID,x, y, x + w, y + h, color, width) {
+	//op[0] = new objectpoint(x + w / 2, y);
 }
 
 void end::onDraw(CDC *pDC) {
@@ -98,23 +152,31 @@ int end::onPress(int x, int y) {
 	int dy2 = (ry - y)*(ry - y);
 	double dx = sqrt(dx2 + dy2);	//点击位置距离圆心的长度
 
-	if (dx <= rr + width / 2) {
-		click = true;
+	curse = false;
+	if (op[0]->onPress(x, y)) {
+		return 2;
+	}
+	else if (dx <= rr + width / 2) {
+		curse = true;
+		hold = true;
 		return 1;
 	}
 	return 0;
 }
 
 int end::onMove(int dx, int dy) {
-	if (click) {
+	if (hold) {
+		curse = false;
 		offset(dx, dy);
+		op[0]->offset(dx, dy);
 		return 1;
 	}
 	return 0;
 }
 
-void end::onRelease(int x, int y) {
-	click = false;
+int end::onRelease(int x, int y) {
+	hold = false;
+	return op[0]->onRelease(x, y)==1?0+1:0;
 }
 
 std::string end::onSave() {
@@ -126,13 +188,16 @@ std::string end::onSave() {
 }
 
 /************************************         箭头         **********************************************/
-arrowline::arrowline(int x, int y, int w, int h, int a, int l, int color, int width) :object(x, y, w, h, color, width) {
-	//establish = true;
-	memset(click, 0, sizeof(click));
+arrowline::arrowline(int ID, int x, int y, int r, int d, int a, int l, int color, int width) :object(ID,x, y, r, d, color, width) {
 	angle = a;
 	length = l;
 	lx = ly = rx = ry = 0;
 	getTwoPoint();
+
+	o_in = NULL;
+	num_in = -1;
+	o_out = NULL;
+	num_out = -1;
 }
 
 void arrowline::onDraw(CDC *pDC) {
@@ -149,28 +214,17 @@ void arrowline::onDraw(CDC *pDC) {
 int arrowline::onPress(int x, int y) {
 
 	if (onTheLine(left, up, right, down, x, y)) {
-		click[0] = true;
+		curse = true;
+		hold= true;
 		return 1;
 	}
-	else if (onTheLine(lx, ly, right, down, x, y)) {
-		click[1] = true;
-		return 1;
-	}
-	else if (onTheLine(rx, ry, right, down, x, y)) {
-		click[2] = true;
-		return 1;
-	}
-
+	curse = false;
 	return 0;
 }
 
 int arrowline::onMove(int dx, int dy) {
-	bool b = false;
-	for (int i = 0; i < 3; i++) {
-		if (click[i])
-			b = true;
-	}
-	if (b) {
+	if (hold) {
+		curse = false;
 		offset(dx, dy);
 		getTwoPoint();
 		return 1;
@@ -178,13 +232,9 @@ int arrowline::onMove(int dx, int dy) {
 	return 0;
 }
 
-void arrowline::onRelease(int x, int y) {
-	memset(click, 0, sizeof(click));
-	/*if (establish) {
-		int d = (right - left)*(right - left) + (down - up)*(down - up);
-		if (d != 0)
-			establish = false;
-	}*/
+int arrowline::onRelease(int x, int y) {
+	hold = false;
+	return 0;
 }
 
 std::string arrowline::onSave() {
@@ -193,6 +243,19 @@ std::string arrowline::onSave() {
 	ss << "5 " << left << " " << up << " " << right << " " << down << " " << color << " " << width;
 	str = ss.str();*/
 	return str;
+}
+
+void arrowline::change(int type,int dx, int dy) {
+	if (type == 1) {
+		left += dx;
+		up += dy;
+	}
+	else if (type == 2) {
+		right += dx;
+		down += dy;
+	}
+	else return;
+	getTwoPoint();
 }
 
 void arrowline::getTwoPoint() {
@@ -249,4 +312,15 @@ bool arrowline::onTheLine(int x1, int y1, int x2, int y2, int px, int py) {
 	}
 
 	return false;
+}
+
+void arrowline::deleteline() {
+	if (o_in != NULL) {
+		o_in->op[num_in]->al = NULL;
+		o_in->op[num_in]->toward = 0;
+	}
+	if (o_out != NULL) {
+		o_out->op[num_out]->al = NULL;
+		o_out->op[num_out]->toward = 0;
+	}
 }
