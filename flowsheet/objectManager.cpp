@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "objectManager.h"
+#include "unit.h"
 
 objectManager::objectManager() :tb(0, 0) {
-	addobject(start_ID, 250, 250);
-	addobject(end_ID, 350, 350);
-
 	line_establish = false;
 	current_ID = 0;
+
+	/*addobject(start_ID, 250, 250);
+	addobject(end_ID, 350, 350);*/
 }
 
 void objectManager::onDraw(CDC* pDC) {
@@ -209,11 +210,19 @@ void objectManager::connectOToL(object* o, int opid, arrowline* l, int lpid) {
 
 object* objectManager::onCreate(int object_ID, int x, int y, int color, int width) {
 	switch (object_ID) {
-	case 1:
-		return new start(current_ID++, x, y, color, width);
-	case 2:
-		return new end(current_ID++, x, y, color, width);
-	case 10:
+	case START_ID:
+		return new start_box(current_ID++, x, y, color, width);
+	case END_ID:
+		return new end_box(current_ID++, x, y, color, width);
+	case INPUT_ID:
+		return new input_box(current_ID++, x, y, color, width);
+	case OUTPUT_ID:
+		return new output_box(current_ID++, x, y, color, width);
+	case PROCESS_ID:
+		return new process_box(current_ID++, x, y, color, width);
+	case DECISION_ID:
+		return new decision_box(current_ID++, x, y, color, width);
+	case ARROWLINE_ID:
 		return new arrowline(current_ID++, x, y, x, y, color, width);
 	}
 	return NULL;

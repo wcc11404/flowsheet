@@ -32,7 +32,6 @@ public:
 
 	void onSize(int l, int r, int u, int d);
 	void offset(int dx, int dy);
-	//void deleteobject();
 	int getID() { return ID; }
 
 	virtual void onDraw(CDC* pDC) {}
@@ -45,11 +44,11 @@ private:
 	int ID;
 };
 
-class start :public object
+class start_box :public object
 {
 public:
-	start(int ID, int x, int y, int color, int width);		//x,y为图元中点
-	start(int ID, int Left, int Up, int Width, int Height, int color, int width);
+	start_box(int ID, int x, int y, int color, int width);		//x,y为图元中点
+	start_box(int ID, int Left, int Up, int Width, int Height, int color, int width);
 
 	void onDraw(CDC* pDC);
 	int onPress(int x, int y);
@@ -58,11 +57,11 @@ public:
 	std::string onSave();
 };
 
-class end :public object
+class end_box :public object
 {
 public:
-	end(int ID, int x, int y, int color, int width);		//x,y为图元中点
-	end(int ID, int Left, int Up, int Width, int Height, int color, int width);
+	end_box(int ID, int x, int y, int color, int width);		//x,y为图元中点
+	end_box(int ID, int Left, int Up, int Width, int Height, int color, int width);
 
 	void onDraw(CDC* pDC);
 	int onPress(int x, int y);

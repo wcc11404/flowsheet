@@ -8,8 +8,21 @@ class objectManager
 public:
 	std::vector<object*> unitArray;
 	std::vector<arrowline*> lineArray;
+
+	#define START_ID 1
+	#define END_ID 2
+	#define INPUT_ID 3
+	#define OUTPUT_ID 4
+	#define PROCESS_ID 5
+	#define DECISION_ID 6
+	#define ARROWLINE_ID 10
+
 	const int start_ID = 1;
 	const int end_ID = 2;
+	const int input_ID = 3;
+	const int output_ID = 4;
+	const int process_ID = 5;
+	const int decision_ID = 6;
 	const int arrowline_ID = 10;
 
 	toolbar tb;

@@ -77,6 +77,9 @@
     <ClCompile Include="toolbar.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="unit.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="flowsheet.rc">

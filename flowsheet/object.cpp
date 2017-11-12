@@ -31,6 +31,7 @@ void objectpoint::offset(int dx, int dy) {
 
 	if(al!=NULL) al->change_d(toward, dx, dy);
 }
+
 /******************************     object     *********************************************/
 object::object(int ID, int Left, int Up, int Right, int Down, int color, int width) {
 	this->ID = ID;
@@ -62,22 +63,15 @@ void object::offset(int dx, int dy) {
 	up += dy;		down += dy;
 }
 
-//void object::deleteobject() {
-//	for (int i = 0; i < 4; i++) {
-//		if (op[i] != NULL) {
-//			if(op[i]->al!=NULL)
-//				op[i]->al->deleteline();
-//		}
-//	}
-//}
-
 /******************************     start      *********************************************/
-start::start(int ID, int x, int y, int color, int width) :object(ID, x-50, y-25, x + 50, y + 25, color, width) {}
-start::start(int ID, int Left, int Up, int Width, int Height, int color, int width) :object(ID, Left, Up, Left + Width, Up + Height, color, width){
+start_box::start_box(int ID, int x, int y, int color, int width) 
+	:object(ID, x-50, y-25, x + 50, y + 25, color, width) {}
+start_box::start_box(int ID, int Left, int Up, int Width, int Height, int color, int width) 
+	:object(ID, Left, Up, Left + Width, Up + Height, color, width){
 	//op[2] = new objectpoint(x + w / 2, y + h);
 }
 
-void start::onDraw(CDC *pDC) {
+void start_box::onDraw(CDC *pDC) {
 	pDC->SelectObject(pen);
 	//pDC->SelectStockObject(NULL_BRUSH);		//透明填充
 	//pDC->Ellipse(left, up, right, down);
@@ -89,14 +83,11 @@ void start::onDraw(CDC *pDC) {
 	pDC->DrawTextA("开 始", &CRect(left, up, right, down), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 }
 
-int start::onPress(int x, int y) {
+int start_box::onPress(int x, int y) {
 	curse = false;							//失去焦点
 
-	if (x >= left&&x <= right&&y >= up&&y <= down);
-	else return 0;
-
 	if (op[2]->onPress(x,y)) return 4;		//点到连接点
-	else{									//在矩形内
+	else if(x >= left&&x <= right&&y >= up&&y <= down){		//在矩形内
 		curse = true;						//获得焦点
 		hold = true;						//鼠标可拖动图元
 		return 1;
@@ -104,7 +95,7 @@ int start::onPress(int x, int y) {
 	return 0;
 }
 
-int start::onMove(int dx, int dy) {
+int start_box::onMove(int dx, int dy) {
 	if (hold) {						//如果图元可被拖动
 		//curse = false;				//失去焦点
 		offset(dx, dy);				//移动图元
@@ -114,12 +105,12 @@ int start::onMove(int dx, int dy) {
 	return 0;
 }
 
-int start::onRelease(int x, int y) {
+int start_box::onRelease(int x, int y) {
 	hold = false;
-	return op[2]->onRelease(x, y)==1?2+1:0;		//点到连接点则返回连接点下标+1
+	return op[2]->onRelease(x, y)==1?2+1:0;		//释放到连接点则返回连接点下标+1
 }
 
-std::string start::onSave() {
+std::string start_box::onSave() {
 	std::string str = "";
 	/*stringstream ss;
 	ss << "1 " << left << " " << up << " " << right << " " << down << " " << color << " " << width;
@@ -128,12 +119,14 @@ std::string start::onSave() {
 }
 
 /******************************     end      *********************************************/
-end::end(int ID, int x, int y, int color, int width) :object(ID, x - 50, y - 25, x + 50, y + 25, color, width) {}
-end::end(int ID, int Left, int Up, int Width, int Height, int color, int width) :object(ID, Left, Up, Left + Width, Up + Height, color, width) {
+end_box::end_box(int ID, int x, int y, int color, int width) 
+	:object(ID, x - 50, y - 25, x + 50, y + 25, color, width) {}
+end_box::end_box(int ID, int Left, int Up, int Width, int Height, int color, int width) 
+	:object(ID, Left, Up, Left + Width, Up + Height, color, width) {
 	//op[0] = new objectpoint(x + w / 2, y);
 }
 
-void end::onDraw(CDC *pDC) {
+void end_box::onDraw(CDC *pDC) {
 	pDC->SelectObject(pen);
 	//pDC->SelectStockObject(NULL_BRUSH);		//透明填充
 	//pDC->Ellipse(left, up, right, down);
@@ -145,14 +138,11 @@ void end::onDraw(CDC *pDC) {
 	pDC->DrawTextA("结 束", &CRect(left, up, right, down), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 }
 
-int end::onPress(int x, int y) {
+int end_box::onPress(int x, int y) {
 	curse = false;							//失去焦点
 
-	if (x >= left&&x <= right&&y >= up&&y <= down);
-	else return 0;
-
 	if (op[0]->onPress(x, y)) return 2;		//点到连接点
-	else {									//在矩形内
+	else if (x >= left&&x <= right&&y >= up&&y <= down) {		//在矩形内
 		curse = true;						//获得焦点
 		hold = true;						//鼠标可拖动图元
 		return 1;
@@ -160,7 +150,7 @@ int end::onPress(int x, int y) {
 	return 0;
 }
 
-int end::onMove(int dx, int dy) {
+int end_box::onMove(int dx, int dy) {
 	if (hold) {						//如果图元可被拖动
 		//curse = false;				//失去焦点
 		offset(dx, dy);				//移动图元
@@ -170,12 +160,12 @@ int end::onMove(int dx, int dy) {
 	return 0;
 }
 
-int end::onRelease(int x, int y) {
+int end_box::onRelease(int x, int y) {
 	hold = false;
-	return op[0]->onRelease(x, y)==1?0+1:0;		//点到连接点则返回连接点下标+1
+	return op[0]->onRelease(x, y)==1?0+1:0;		//释放到连接点则返回连接点下标+1
 }
 
-std::string end::onSave() {
+std::string end_box::onSave() {
 	std::string str = "";
 	/*stringstream ss;
 	ss << "1 " << left << " " << up << " " << right << " " << down << " " << color << " " << width;
@@ -195,10 +185,12 @@ void arrowline::init(int Angle,int Length) {
 	o_out = NULL;
 	num_out = -1;
 }
-arrowline::arrowline(int ID, int x1, int y1, int x2, int y2, int color, int width) :object(ID, x1, y1, x2, y2, color, width) {
+arrowline::arrowline(int ID, int x1, int y1, int x2, int y2, int color, int width) 
+	:object(ID, x1, y1, x2, y2, color, width) {
 	init(30, 12);
 }
-arrowline::arrowline(int ID, int x1, int y1, int x2, int y2, int Angle, int Length, int color, int width) :object(ID,x1, y1, x2, y2, color, width) {
+arrowline::arrowline(int ID, int x1, int y1, int x2, int y2, int Angle, int Length, int color, int width) 
+	:object(ID,x1, y1, x2, y2, color, width) {
 	init(Angle, Length);
 }
 
