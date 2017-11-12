@@ -29,25 +29,25 @@ void objectpoint::offset(int dx, int dy) {
 	x += dx;
 	y += dy;
 
-	al->change(toward, dx, dy);
+	if(al!=NULL) al->change_d(toward, dx, dy);
 }
 /******************************     object     *********************************************/
-object::object(int ID, int l, int u, int r, int d, int color, int width) {
+object::object(int ID, int Left, int Up, int Right, int Down, int color, int width) {
 	this->ID = ID;
 	this->width = width;
 	this->color = color;
 	pen.CreatePen(PS_SOLID, width, color);
-	left = l;
-	up = u;
-	right = r;
-	down = d;
+	left = Left;
+	up = Up;
+	right = Right;
+	down = Down;
 	hold = false;
 	curse = false;
 	
-	op[0] = new objectpoint((l + r) / 2, u);
-	op[1] = new objectpoint(l, (u + d) / 2);
-	op[2] = new objectpoint((l + r) / 2, d);
-	op[3] = new objectpoint(r, (u + d) / 2);
+	op[0] = new objectpoint((Left + Right) / 2, Up);
+	op[1] = new objectpoint(Left, (Up + Down) / 2);
+	op[2] = new objectpoint((Left + Right) / 2, Down);
+	op[3] = new objectpoint(Right, (Up + Down) / 2);
 }
 
 void object::onSize(int l, int r, int u, int d) {
@@ -72,45 +72,43 @@ void object::offset(int dx, int dy) {
 //}
 
 /******************************     start      *********************************************/
-start::start(int ID, int x, int y, int w, int h, int color, int width) :object(ID, x, y, x + w, y + h, color, width){
+start::start(int ID, int x, int y, int color, int width) :object(ID, x-50, y-25, x + 50, y + 25, color, width) {}
+start::start(int ID, int Left, int Up, int Width, int Height, int color, int width) :object(ID, Left, Up, Left + Width, Up + Height, color, width){
 	//op[2] = new objectpoint(x + w / 2, y + h);
 }
 
 void start::onDraw(CDC *pDC) {
 	pDC->SelectObject(pen);
 	//pDC->SelectStockObject(NULL_BRUSH);		//透明填充
-	pDC->Ellipse(left, up, right, down);
+	//pDC->Ellipse(left, up, right, down);
+	pDC->RoundRect(left, up, right, down, (down - up) , (down - up) );
+	pDC->SetBkMode(TRANSPARENT);
+	CFont fontGrade;
+	fontGrade.CreatePointFont(100, "宋体");
+	pDC->SelectObject(&fontGrade);
+	pDC->DrawTextA("开 始", &CRect(left, up, right, down), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 }
 
 int start::onPress(int x, int y) {
-	int rx = right + left;
-	rx /= 2;
-	int ry = down + up;
-	ry /= 2;			//求得圆心
-	int rr = right - left;
-	rr /= 2;			//求得半径
+	curse = false;							//失去焦点
 
-	double dx2 = (rx - x)*(rx - x);
-	int dy2 = (ry - y)*(ry - y);
-	double dx = sqrt(dx2 + dy2);	//点击位置距离圆心的长度
+	if (x >= left&&x <= right&&y >= up&&y <= down);
+	else return 0;
 
-	curse = false;
-	if (op[2]->onPress(x,y)) {
-		return 4;
-	}
-	else if(dx <= rr + width / 2) {
-		curse = true;
-		hold = true;
+	if (op[2]->onPress(x,y)) return 4;		//点到连接点
+	else{									//在矩形内
+		curse = true;						//获得焦点
+		hold = true;						//鼠标可拖动图元
 		return 1;
 	}
 	return 0;
 }
 
 int start::onMove(int dx, int dy) {
-	if (hold) {
-		curse = false;
-		offset(dx, dy);
-		op[2]->offset(dx, dy);
+	if (hold) {						//如果图元可被拖动
+		//curse = false;				//失去焦点
+		offset(dx, dy);				//移动图元
+		op[2]->offset(dx, dy);		//移动连接点
 		return 1;
 	}
 	return 0;
@@ -118,7 +116,7 @@ int start::onMove(int dx, int dy) {
 
 int start::onRelease(int x, int y) {
 	hold = false;
-	return op[2]->onRelease(x, y)==1?2+1:0;
+	return op[2]->onRelease(x, y)==1?2+1:0;		//点到连接点则返回连接点下标+1
 }
 
 std::string start::onSave() {
@@ -130,45 +128,43 @@ std::string start::onSave() {
 }
 
 /******************************     end      *********************************************/
-end::end(int ID, int x, int y, int w, int h, int color, int width) :object(ID,x, y, x + w, y + h, color, width) {
+end::end(int ID, int x, int y, int color, int width) :object(ID, x - 50, y - 25, x + 50, y + 25, color, width) {}
+end::end(int ID, int Left, int Up, int Width, int Height, int color, int width) :object(ID, Left, Up, Left + Width, Up + Height, color, width) {
 	//op[0] = new objectpoint(x + w / 2, y);
 }
 
 void end::onDraw(CDC *pDC) {
 	pDC->SelectObject(pen);
 	//pDC->SelectStockObject(NULL_BRUSH);		//透明填充
-	pDC->Ellipse(left, up, right, down);
+	//pDC->Ellipse(left, up, right, down);
+	pDC->RoundRect(left, up, right, down, (down - up), (down - up));
+	pDC->SetBkMode(TRANSPARENT);
+	CFont fontGrade;
+	fontGrade.CreatePointFont(100, "宋体");
+	pDC->SelectObject(&fontGrade);
+	pDC->DrawTextA("结 束", &CRect(left, up, right, down), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 }
 
 int end::onPress(int x, int y) {
-	int rx = right + left;
-	rx /= 2;
-	int ry = down + up;
-	ry /= 2;			//求得圆心
-	int rr = right - left;
-	rr /= 2;			//求得半径
+	curse = false;							//失去焦点
 
-	double dx2 = (rx - x)*(rx - x);
-	int dy2 = (ry - y)*(ry - y);
-	double dx = sqrt(dx2 + dy2);	//点击位置距离圆心的长度
+	if (x >= left&&x <= right&&y >= up&&y <= down);
+	else return 0;
 
-	curse = false;
-	if (op[0]->onPress(x, y)) {
-		return 2;
-	}
-	else if (dx <= rr + width / 2) {
-		curse = true;
-		hold = true;
+	if (op[0]->onPress(x, y)) return 2;		//点到连接点
+	else {									//在矩形内
+		curse = true;						//获得焦点
+		hold = true;						//鼠标可拖动图元
 		return 1;
 	}
 	return 0;
 }
 
 int end::onMove(int dx, int dy) {
-	if (hold) {
-		curse = false;
-		offset(dx, dy);
-		op[0]->offset(dx, dy);
+	if (hold) {						//如果图元可被拖动
+		//curse = false;				//失去焦点
+		offset(dx, dy);				//移动图元
+		op[0]->offset(dx, dy);		//移动连接点
 		return 1;
 	}
 	return 0;
@@ -176,7 +172,7 @@ int end::onMove(int dx, int dy) {
 
 int end::onRelease(int x, int y) {
 	hold = false;
-	return op[0]->onRelease(x, y)==1?0+1:0;
+	return op[0]->onRelease(x, y)==1?0+1:0;		//点到连接点则返回连接点下标+1
 }
 
 std::string end::onSave() {
@@ -188,9 +184,9 @@ std::string end::onSave() {
 }
 
 /************************************         箭头         **********************************************/
-arrowline::arrowline(int ID, int x, int y, int r, int d, int a, int l, int color, int width) :object(ID,x, y, r, d, color, width) {
-	angle = a;
-	length = l;
+void arrowline::init(int Angle,int Length) {
+	angle = Angle;
+	length = Length;
 	lx = ly = rx = ry = 0;
 	getTwoPoint();
 
@@ -198,6 +194,12 @@ arrowline::arrowline(int ID, int x, int y, int r, int d, int a, int l, int color
 	num_in = -1;
 	o_out = NULL;
 	num_out = -1;
+}
+arrowline::arrowline(int ID, int x1, int y1, int x2, int y2, int color, int width) :object(ID, x1, y1, x2, y2, color, width) {
+	init(30, 12);
+}
+arrowline::arrowline(int ID, int x1, int y1, int x2, int y2, int Angle, int Length, int color, int width) :object(ID,x1, y1, x2, y2, color, width) {
+	init(Angle, Length);
 }
 
 void arrowline::onDraw(CDC *pDC) {
@@ -224,7 +226,7 @@ int arrowline::onPress(int x, int y) {
 
 int arrowline::onMove(int dx, int dy) {
 	if (hold) {
-		curse = false;
+		//curse = false;
 		offset(dx, dy);
 		getTwoPoint();
 		return 1;
@@ -245,7 +247,20 @@ std::string arrowline::onSave() {
 	return str;
 }
 
-void arrowline::change(int type,int dx, int dy) {
+void arrowline::change(int type, int x, int y) {
+	if (type == 1) {
+		left = x;
+		up = y;
+	}
+	else if (type == 2) {
+		right = x;
+		down = y;
+	}
+	else return;
+	getTwoPoint();
+}
+
+void arrowline::change_d(int type,int dx, int dy) {
 	if (type == 1) {
 		left += dx;
 		up += dy;

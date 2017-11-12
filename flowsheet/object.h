@@ -28,7 +28,7 @@ public:
 
 	bool hold;
 	bool curse;
-	object(int ID, int l, int u, int r, int d, int color, int width);
+	object(int ID, int Left, int Up, int Right, int Down, int color, int width);
 
 	void onSize(int l, int r, int u, int d);
 	void offset(int dx, int dy);
@@ -48,7 +48,8 @@ private:
 class start :public object
 {
 public:
-	start(int ID, int x, int y, int w, int h, int color, int width);
+	start(int ID, int x, int y, int color, int width);		//x,y为图元中点
+	start(int ID, int Left, int Up, int Width, int Height, int color, int width);
 
 	void onDraw(CDC* pDC);
 	int onPress(int x, int y);
@@ -60,7 +61,8 @@ public:
 class end :public object
 {
 public:
-	end(int ID, int x, int y, int w, int h, int color, int width);
+	end(int ID, int x, int y, int color, int width);		//x,y为图元中点
+	end(int ID, int Left, int Up, int Width, int Height, int color, int width);
 
 	void onDraw(CDC* pDC);
 	int onPress(int x, int y);
@@ -69,17 +71,17 @@ public:
 	std::string onSave();
 };
 
-class unit:public object
-{
-public:
-	unit(int ID, int x, int y, int w, int h, int color, int width);
-
-	virtual void onDraw(CDC* pDC) {}
-	virtual int  onPress(int x, int y) { return 0; }		//  鼠标按下
-	virtual int onMove(int dx, int dy) { return 0; }		//  鼠标移动
-	virtual int onRelease(int x, int y) { return 0; }		//  鼠标释放
-	virtual std::string onSave() { return ""; }
-};
+//class unit:public object
+//{
+//public:
+//	unit(int ID, int x, int y, int w, int h, int color, int width);
+//
+//	virtual void onDraw(CDC* pDC) {}
+//	virtual int  onPress(int x, int y) { return 0; }		//  鼠标按下
+//	virtual int onMove(int dx, int dy) { return 0; }		//  鼠标移动
+//	virtual int onRelease(int x, int y) { return 0; }		//  鼠标释放
+//	virtual std::string onSave() { return ""; }
+//};
 
 class arrowline :public object
 {
@@ -94,16 +96,19 @@ public:
 	object* o_out;		//箭头出方向
 	int num_out;
 
-	arrowline(int ID, int x, int y, int r, int d, int a, int l, int color, int width);
+	arrowline(int ID, int x1, int y1, int x2, int y2, int color, int width);
+	arrowline(int ID, int x1, int y1, int x2, int y2, int Angle, int Length, int color, int width);
 	void onDraw(CDC* pDC);
 	int onPress(int x, int y);			//暂时不用
 	int onMove(int dx, int dy);			//暂时不用
 	int onRelease(int x, int y);		//暂时不用
-	void change(int type,int dx, int dy);			//type=1时，改变left和up的值，type=2时改变right和down的值
+	void change(int type, int x, int y);			//改变线端点的值，type=1时，改变left和up的值，type=2时改变right和down的值
+	void change_d(int type,int dx, int dy);			//线端点值位移，type=1时，改变left和up的值，type=2时改变right和down的值
 	void deleteline();
 	std::string onSave();
 
 private:
+	void init(int Angle, int Length);	//初始化
 	void getTwoPoint();	//计算箭头另外两个端点，存储在lx,ly,rx,ry中
 	bool onTheLine(int x1, int y1, int x2, int y2, int px, int py);
 };

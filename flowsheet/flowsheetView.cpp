@@ -148,9 +148,13 @@ BOOL CflowsheetView::OnEraseBkgnd(CDC* pDC)
 void CflowsheetView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
-	GetDocument()->obm.onPress(point.x, point.y);
+	int re=GetDocument()->obm.onPress(point.x, point.y);
+	/*char temp[80];
+	sprintf(temp, "%d", re);
+	MessageBox(temp);*/
 	GetDocument()->x = point.x;
 	GetDocument()->y = point.y;
+	if (re != 0)	Invalidate();
 	CView::OnLButtonDown(nFlags, point);
 }
 

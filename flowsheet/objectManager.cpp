@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "objectManager.h"
 
-objectManager::objectManager() {
-	unitArray.push_back(onCreate(1, 50, 50, 50, 50));
-	unitArray.push_back(onCreate(2, 150, 150, 50, 50));
+objectManager::objectManager() :tb(0, 0) {
+	addobject(start_ID, 250, 250);
+	addobject(end_ID, 350, 350);
 
 	line_establish = false;
 	current_ID = 0;
@@ -19,6 +19,8 @@ void objectManager::onDraw(CDC* pDC) {
 		arrowline* temp = *it;
 		temp->onDraw(pDC);
 	}
+
+	tb.onDraw(pDC);
 }
 
 int objectManager::onPress(int x, int y) {
@@ -27,6 +29,15 @@ int objectManager::onPress(int x, int y) {
 		int r = temp->onPress(x, y);
 		if (r) return 1;
 	}*/
+	int re = tb.onPress(x, y);
+	if (re != 0) {
+		re = addobject(re, x, y);
+		if (re == 1) {
+			unitArray.back()->hold = true;
+			unitArray.back()->curse = true;
+			return 1;
+		}
+	}
 
 	for (std::vector<object*>::iterator it = unitArray.begin(); it != unitArray.end(); it++) {
 		object* temp = *it;
@@ -40,7 +51,7 @@ int objectManager::onPress(int x, int y) {
 		else {						//点到连接点,re-2代表点到op[re-2]连接点
 			if (temp->op[re - 2]->toward == 0) {		//之前这个连接点没有连接线连接
 				//强制对齐
-				lineArray.push_back((arrowline*)onCreate(3, temp->op[re - 2]->x, temp->op[re - 2]->y, temp->op[re - 2]->x, temp->op[re - 2]->y));//创建出一条线
+				addline(temp->op[re - 2]->x, temp->op[re - 2]->y);
 				
 				connectOToL(temp, re - 2, lineArray.back(), 1);
 				line_establish = true;
@@ -59,7 +70,7 @@ int objectManager::onMove(int dx, int dy) {
 		if (r) return 1;
 	}*/
 	if (line_establish) {			//当前有正在被创建中的连线
-		lineArray[lineArray.size() - 1]->change(2,dx, dy);			//改变待修改连线的位置
+		lineArray.back()->change_d(2,dx, dy);			//改变待修改连线的位置
 		return 1;					//更新画面
 	}
 
@@ -80,7 +91,7 @@ int objectManager::onRelease(int x,int y) {
 		int re=temp->onRelease(x,y);
 		if (re != 0) {		//如果释放的位置是objectpoint,re-1代表释放的位置是op[re-1]连接点
 			//强制对齐
-			lineArray.back()->change(2, temp->op[re - 1]->x - lineArray.back()->right, temp->op[re - 1]->y - lineArray.back()->down);
+			lineArray.back()->change(2, temp->op[re - 1]->x, temp->op[re - 1]->y);
 			
 			connectOToL(temp, re - 1, lineArray.back(), 2);
 			judge = true;
@@ -139,6 +150,24 @@ int objectManager::onKey(int ch) {
 	return 0;
 }
 
+int objectManager::addobject(int object_ID, int x, int y, int color, int width) {
+	object* temp = onCreate(object_ID, x, y, color, width);
+	if (temp != NULL) {
+		unitArray.push_back(temp);
+		return 1;
+	}
+	return 0;
+}
+
+int objectManager::addline(int x1, int y1, int color, int width) {
+	arrowline* temp=(arrowline*)onCreate(arrowline_ID, x1, y1, color, width);//创建出一条线
+	if (temp != NULL) {
+		lineArray.push_back(temp);
+		return 1;
+	}
+	return 0;
+}
+
 void objectManager::deleteobject(int ID) {		//删除指定ID的图元
 	for (std::vector<object*>::iterator it = unitArray.begin(); it != unitArray.end(); it++) {
 		object* temp = *it;
@@ -178,13 +207,14 @@ void objectManager::connectOToL(object* o, int opid, arrowline* l, int lpid) {
 	}
 }
 
-object* objectManager::onCreate(int object_ID, int x, int y, int w, int h, int color, int width) {
+object* objectManager::onCreate(int object_ID, int x, int y, int color, int width) {
 	switch (object_ID) {
 	case 1:
-		return new start(current_ID++,x, y, w, h, color, width);
+		return new start(current_ID++, x, y, color, width);
 	case 2:
-		return new end(current_ID++, x, y, w, h, color, width);
-	case 3:
-		return new arrowline(current_ID++, x, y, w, h, 30, 12, color, width);
+		return new end(current_ID++, x, y, color, width);
+	case 10:
+		return new arrowline(current_ID++, x, y, x, y, color, width);
 	}
+	return NULL;
 }

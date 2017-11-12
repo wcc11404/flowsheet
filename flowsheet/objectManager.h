@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "object.h"
+#include "toolbar.h"
 
 class objectManager
 {
@@ -9,7 +10,9 @@ public:
 	std::vector<arrowline*> lineArray;
 	const int start_ID = 1;
 	const int end_ID = 2;
-	const int arrowline_ID = 3;
+	const int arrowline_ID = 10;
+
+	toolbar tb;
 	
 	objectManager();
 
@@ -19,11 +22,15 @@ public:
 	int onRelease(int x, int y);		//  鼠标释放
 	int onKey(int ch);
 	int findCurse(int &id);
-	void deleteobject(int ID);
-	void deleteline(int ID);
+	
 	//std::string onSave() { return ""; }
 
-	object* onCreate(int object_ID, int x = 0, int y = 0, int w = 0, int h = 0, int color = RGB(0, 0, 0), int width = 1);
+	int addobject(int object_ID, int x, int y, int color = RGB(0, 0, 0), int width = 1);
+	int addline(int x1 = 0, int y1 = 0,int color = RGB(0, 0, 0), int width = 1);
+	void deleteobject(int ID);
+	void deleteline(int ID);
+
+	object* onCreate(int object_ID, int x = 0, int y = 0, int color = RGB(0, 0, 0), int width = 1);
 private:
 	int current_ID;			//下一个应该被创建的ID号
 	bool line_establish;	//是否有连接线正在被创建

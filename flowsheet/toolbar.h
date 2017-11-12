@@ -4,9 +4,20 @@
 class toolbar
 {
 public:
-	toolbar() {}
+	int barx;
+	int bary;
+	int barwidth;
+	int barhight;
+	CPen barpen;
+	CBrush barbrush;
 
-	void onDraw(CDC* pDC) {}
-	void onPress(int x, int y) {}
-	void onRelease(int x, int y) {}
+	int buttonwidth;
+	int buttonhight;
+	CPen buttonpen;
+	CBrush buttonbrush;
+	toolbar(int x, int y);
+
+	void onDraw(CDC* pDC);
+	int onPress(int x, int y);
+	int onRelease(int x, int y);
 };
