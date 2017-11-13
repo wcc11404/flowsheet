@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Manager.h"
 #include "unit.h"
+#include <set>
+#include <queue>
 
 Manager::Manager() :tb(0, 0) {
 	line_establish = false;
@@ -30,6 +32,8 @@ int Manager::onPress(int x, int y) {
 		int r = temp->onPress(x, y);
 		if (r) return 1;
 	}*/
+	int retu = 0;
+
 	int re = tb.onPress(x, y);
 	if (re != 0) {
 		int tempid = IDARRAY[re - 1];		//取第re个图元按钮所对应的图元创建ID
@@ -37,7 +41,7 @@ int Manager::onPress(int x, int y) {
 		if (re == 1) {						//创建成功
 			unitArray.back()->hold = true;	//可以拖拽
 			unitArray.back()->curse = true;	//拥有焦点
-			return 1;
+			retu = 1;
 		}
 	}
 
@@ -48,7 +52,7 @@ int Manager::onPress(int x, int y) {
 			continue;
 		}
 		else if (re == 1) {			//点到图形
-			return 1;
+			retu = 1;
 		}
 		else {						//点到连接点,re-2代表点到op[re-2]连接点
 			if (temp->op[re - 2]->toward == 0) {		//之前这个连接点没有连接线连接
@@ -57,12 +61,12 @@ int Manager::onPress(int x, int y) {
 				
 				connectOToL(temp, re - 2, lineArray.back(), 1);
 				line_establish = true;
-				return re;
+				retu = re;
 			}
 		}
 	}
 
-	return 0;
+	return retu;
 }
 
 int Manager::onMove(int dx, int dy) {
@@ -76,13 +80,15 @@ int Manager::onMove(int dx, int dy) {
 		return 1;					//更新画面
 	}
 
+	int re = 0;
 	for (std::vector<object*>::iterator it = unitArray.begin(); it != unitArray.end(); it++) {
 		object* temp = *it;
-		int re = temp->onMove(dx, dy);
-		if (re) return 1;			//更新画面
+		if (temp->onMove(dx, dy))
+			re = 1;		//更新画面
+			
 	}
 
-	return 0;
+	return re;
 }
 
 int Manager::onRelease(int x,int y) {
@@ -109,9 +115,8 @@ int Manager::onRelease(int x,int y) {
 			deleteline(current_ID - 1);		//删除正在创建的连接线
 		}
 		line_establish = false;
-		return 1;							//更新画面
 	}
-	return 0;
+	return 1;								//更新画面
 
 	/*for (std::vector<object*>::iterator it = lineArray.begin(); it != lineArray.end(); it++) {
 		object* temp = *it;
@@ -125,6 +130,55 @@ int Manager::onDBclick(int x, int y) {
 		temp->onDBclick(x, y);
 	}
 	return 0;
+}
+
+int Manager::onBuild() {
+	bool pass = true;
+
+	bool startexist = false;
+	//bool endexist = false;
+	object* start;
+	/*object* end;*/
+	for (std::vector<object*>::iterator it = unitArray.begin(); it != unitArray.end(); it++) {
+		object* temp = *it;
+		if (temp->type == START_ID) {
+			if (!startexist) {
+				startexist = true;
+				start = temp;
+			}
+			else {
+				pass = false;
+			}
+		}
+		/*else if (temp->type == END_ID) {
+			if (!endexist) {
+				endexist = true;
+				end = temp;
+			}
+			else {
+				pass = false;
+			}
+		}*/
+	}
+
+	if (!pass) return 1;	//多于一个开始框
+	if (!startexist) return 1;	//没有开始框
+
+	
+	std::set<int> idset;
+	std::queue<object*> Queue;
+	//if (end->onBuild(&Queue)) return 1;		//结束框编译出错
+	Queue.push(start);
+	while (Queue.size() != 0) {
+		object* temp = Queue.front();
+		Queue.pop();
+		if (temp->onBuild(&Queue)) {
+			pass = false;
+		}
+	}
+
+	if (!pass) return 1;		//编译出错
+	return 0;				//编译通过
 }
 
 int Manager::findCurse(int &id) {

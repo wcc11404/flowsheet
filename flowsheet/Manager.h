@@ -18,34 +18,32 @@ public:
 	#define ARROWLINE_ID 10
 
 	const int IDARRAY[6] = { START_ID ,END_ID ,INPUT_ID ,OUTPUT_ID ,PROCESS_ID , DECISION_ID };
-	/*const int start_ID = 1;
-	const int end_ID = 2;
-	const int input_ID = 3;
-	const int output_ID = 4;
-	const int process_ID = 5;
-	const int decision_ID = 6;
-	const int arrowline_ID = 10;*/
 
-	toolbar tb;
+	toolbar tb;		//左上角画板
 	
 	Manager();
 
-	void onDraw(CDC* pDC);
+	void onDraw(CDC* pDC);			//  画图
 	int onPress(int x, int y);		//  鼠标按下
 	int onMove(int dx, int dy);		//  鼠标移动
 	int onRelease(int x, int y);	//  鼠标释放
 	int onKey(int ch);				//  按键按下
 	int onDBclick(int x, int y);	//  鼠标双击
-	int findCurse(int &id);
+
+	int onBuild();					//  编译链接
+
+	int findCurse(int &id);			//  查找拥有焦点的图元或者连线
 	
 	//std::string onSave() { return ""; }
 
+	//添加图元或连线以及删除图元或连线
 	int addobject(int object_ID, int x, int y, int color = RGB(0, 0, 0), int width = 1);
 	int addline(int x1 = 0, int y1 = 0,int color = RGB(0, 0, 0), int width = 1);
 	void deleteobject(int ID);
 	void deleteline(int ID);
 
-	object* onCreate(int object_ID, int x = 0, int y = 0, int color = RGB(0, 0, 0), int width = 1);
+	//工厂模式建立各种图元以及连线
+	object* onCreate(int object_ID, int x = 0, int y = 0, int color = RGB(0, 0, 0), int width = 1);		
 private:
 	int current_ID;			//下一个应该被创建的ID号
 	bool line_establish;	//是否有连接线正在被创建

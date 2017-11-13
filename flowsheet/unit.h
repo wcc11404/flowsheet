@@ -17,6 +17,7 @@ public:
 	int onMove(int dx, int dy);
 	int onRelease(int x, int y);
 	int onDBclick(int x, int y);
+	int onBuild(std::queue<object*>* q);
 private:
 	std::map<std::string, double> iden;
 };
@@ -32,6 +33,7 @@ public:
 	int onMove(int dx, int dy);
 	int onRelease(int x, int y);
 	int onDBclick(int x, int y);
+	int onBuild(std::queue<object*>* q);
 private:
 	std::string str;
 };
@@ -47,6 +49,7 @@ public:
 	int onMove(int dx, int dy);
 	int onRelease(int x, int y);
 	int onDBclick(int x, int y);
+	int onBuild(std::queue<object*>* q);
 private:
 	std::string str;
 };
@@ -62,6 +65,7 @@ public:
 	int onMove(int dx, int dy);
 	int onRelease(int x, int y);
 	int onDBclick(int x, int y);
+	int onBuild(std::queue<object*>* q);
 private:
 	std::string str;
 };

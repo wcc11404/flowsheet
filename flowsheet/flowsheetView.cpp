@@ -32,6 +32,7 @@ BEGIN_MESSAGE_MAP(CflowsheetView, CView)
 	ON_WM_LBUTTONDBLCLK()
 	ON_WM_MOUSEMOVE()
 ON_WM_KEYUP()
+ON_COMMAND(ID_32771, &CflowsheetView::OnBuild)
 END_MESSAGE_MAP()
 
 // CflowsheetView 构造/析构
@@ -189,4 +190,12 @@ void CflowsheetView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 	sprintf(temp, "%d", nChar);
 	MessageBox(temp);*/
 	CView::OnKeyUp(nChar, nRepCnt, nFlags);
+}
+
+
+void CflowsheetView::OnBuild()
+{
+	// TODO: 在此添加命令处理程序代码
+	GetDocument()->manager.onBuild();
+	Invalidate();
 }

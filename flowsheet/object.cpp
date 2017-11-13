@@ -6,7 +6,7 @@ objectpoint::objectpoint(int x, int y) {
 	this->y = y;
 	al = NULL;
 	toward = 0;
-	radius = 5;		//在点附近半径为r的区域点击都算
+	radius = 8;		//在点附近半径为r的区域点击都算
 }
 
 int objectpoint::onPress(int x, int y) {
@@ -38,12 +38,15 @@ object::object(int ID, int Left, int Up, int Right, int Down, int color, int wid
 	this->width = width;
 	this->color = color;
 	pen.CreatePen(PS_SOLID, width, color);
+	cursepen.CreatePen(PS_SOLID, width + 1, RGB(34, 177, 76));
+	errorpen.CreatePen(PS_SOLID, width + 1, RGB(255, 0, 0));
 	left = Left;
 	up = Up;
 	right = Right;
 	down = Down;
 	hold = false;
 	curse = false;
+	error = false;
 	
 	op[0] = new objectpoint((Left + Right) / 2, Up);
 	op[1] = new objectpoint(Left, (Up + Down) / 2);
@@ -63,16 +66,30 @@ void object::offset(int dx, int dy) {
 	up += dy;		down += dy;
 }
 
+void object::onDraw(CDC* pDC) {
+	if (error) {
+		pDC->SelectObject(errorpen);
+	}
+	else if (curse && !hold) {
+		pDC->SelectObject(cursepen);
+	}
+	else {
+		pDC->SelectObject(pen);
+	}
+}
+
 /******************************     start      *********************************************/
 start_box::start_box(int ID, int x, int y, int color, int width) 
-	:object(ID, x-50, y-25, x + 50, y + 25, color, width) {}
+	:object(ID, x-50, y-25, x + 50, y + 25, color, width) {
+	type = START;
+}
 start_box::start_box(int ID, int Left, int Up, int Width, int Height, int color, int width) 
 	:object(ID, Left, Up, Left + Width, Up + Height, color, width){
-	//op[2] = new objectpoint(x + w / 2, y + h);
+	type = START;
 }
 
 void start_box::onDraw(CDC *pDC) {
-	pDC->SelectObject(pen);
+	object::onDraw(pDC);
 	//pDC->SelectStockObject(NULL_BRUSH);		//透明填充
 	//pDC->Ellipse(left, up, right, down);
 	pDC->RoundRect(left, up, right, down, (down - up) , (down - up) );
@@ -110,6 +127,22 @@ int start_box::onRelease(int x, int y) {
 	return op[2]->onRelease(x, y)==1?2+1:0;		//释放到连接点则返回连接点下标+1
 }
 
+int start_box::onBuild(std::queue<object*>* q) {
+	error = false;
+
+	if (op[2]->toward == 1) {
+		q->push(op[2]->al->o_out);
+		return 0;
+	}
+	else {
+		if (op[2]->toward == 2)
+			op[2]->al->error = true;
+		error = true;
+		return 1;
+	}
+		
+}
+
 std::string start_box::onSave() {
 	std::string str = "";
 	/*stringstream ss;
@@ -120,14 +153,16 @@ std::string start_box::onSave() {
 
 /******************************     end      *********************************************/
 end_box::end_box(int ID, int x, int y, int color, int width) 
-	:object(ID, x - 50, y - 25, x + 50, y + 25, color, width) {}
+	:object(ID, x - 50, y - 25, x + 50, y + 25, color, width) {
+	type = END;
+}
 end_box::end_box(int ID, int Left, int Up, int Width, int Height, int color, int width) 
 	:object(ID, Left, Up, Left + Width, Up + Height, color, width) {
-	//op[0] = new objectpoint(x + w / 2, y);
+	type = END;
 }
 
 void end_box::onDraw(CDC *pDC) {
-	pDC->SelectObject(pen);
+	object::onDraw(pDC);
 	//pDC->SelectStockObject(NULL_BRUSH);		//透明填充
 	//pDC->Ellipse(left, up, right, down);
 	pDC->RoundRect(left, up, right, down, (down - up), (down - up));
@@ -165,6 +200,18 @@ int end_box::onRelease(int x, int y) {
 	return op[0]->onRelease(x, y)==1?0+1:0;		//释放到连接点则返回连接点下标+1
 }
 
+int end_box::onBuild(std::queue<object*>* q) {
+	error = false;
+
+	if (op[0]->toward == 2)
+		return 0;
+	else {
+		error = true;
+		return 1;
+	}
+		
+}
+
 std::string end_box::onSave() {
 	std::string str = "";
 	/*stringstream ss;
@@ -184,6 +231,8 @@ void arrowline::init(int Angle,int Length) {
 	num_in = -1;
 	o_out = NULL;
 	num_out = -1;
+
+	type = ARROWLINE;
 }
 arrowline::arrowline(int ID, int x1, int y1, int x2, int y2, int color, int width) 
 	:object(ID, x1, y1, x2, y2, color, width) {
@@ -195,7 +244,8 @@ arrowline::arrowline(int ID, int x1, int y1, int x2, int y2, int Angle, int Leng
 }
 
 void arrowline::onDraw(CDC *pDC) {
-	pDC->SelectObject(pen);
+	object::onDraw(pDC);
+
 	pDC->MoveTo(left, up);
 	pDC->LineTo(right, down);
 

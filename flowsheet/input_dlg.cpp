@@ -56,7 +56,7 @@ END_MESSAGE_MAP()
 void input_dlg::OnBnClickedButton1()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	iden->clear();
+	//iden->clear();
 	char temp[80];
 	GetDlgItem(variable_name_i)->GetWindowTextA(temp, sizeof(temp));
 	std::string strtemp = temp;

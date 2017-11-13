@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include <queue>
 class arrowline;
 
 class objectpoint
@@ -23,26 +24,32 @@ public:
 	int  left, up, right, down;			 //  左、上、右、下
 	double width;	//线宽
 	int color;		//颜色
-	CPen pen;	//画笔
+	CPen pen;		//正常绘画时所用画笔
+	CPen cursepen;	//拥有焦点时所用画笔
+	CPen errorpen;	//编译出错时所用画笔
 	objectpoint *op[4];
 
-	bool hold;
-	bool curse;
+	//图元类型
+	enum { OBJECT = 0, START = 1, END = 2, INPUT = 3, OUTPUT = 4, PROCESS = 5, DECISION = 6, ARROWLINE = 10 }type;
+	bool error;		//编译是否出错
+	bool hold;		//是否可拖动
+	bool curse;		//焦点
 	object(int ID, int Left, int Up, int Right, int Down, int color, int width);
 
-	void onSize(int l, int r, int u, int d);
-	void offset(int dx, int dy);
-	int getID() { return ID; }
+	void onSize(int l, int r, int u, int d);				//改变大小暂时没用
+	void offset(int dx, int dy);							//位移
+	int getID() { return ID; }								//获得ID
 
-	virtual void onDraw(CDC* pDC) {}
+	virtual void onDraw(CDC* pDC);
 	virtual int onPress(int x, int y) { return 0; }			//  鼠标按下
 	virtual int onMove(int dx, int dy) { return 0; }		//  鼠标移动
 	virtual int onRelease(int x, int y) { return 0; }		//  鼠标释放
 	virtual int onDBclick(int x, int y) { return 0; }		//  鼠标双击
+	virtual int onBuild(std::queue<object*>* q) { return 0; }
 	virtual std::string onSave() { return ""; }
 
 private:
-	int ID;
+	int ID;		//图元ID
 };
 
 class start_box :public object
@@ -55,6 +62,7 @@ public:
 	int onPress(int x, int y);
 	int onMove(int dx, int dy);
 	int onRelease(int x, int y);
+	int onBuild(std::queue<object*>* q);
 	std::string onSave();
 };
 
@@ -68,6 +76,7 @@ public:
 	int onPress(int x, int y);
 	int onMove(int dx, int dy);
 	int onRelease(int x, int y);
+	int onBuild(std::queue<object*>* q);
 	std::string onSave();
 };
 

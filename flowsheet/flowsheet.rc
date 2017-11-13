@@ -141,6 +141,10 @@ BEGIN
     BEGIN
         MENUITEM "关于 flowsheet(&A)...",         ID_APP_ABOUT
     END
+    POPUP "生成(&B)"
+    BEGIN
+        MENUITEM "生成解决方案(&B)",                  ID_32771
+    END
 END
 
 
