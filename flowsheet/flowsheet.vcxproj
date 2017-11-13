@@ -185,12 +185,16 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="decision_dlg.h" />
     <ClInclude Include="flowsheet.h" />
     <ClInclude Include="flowsheetDoc.h" />
     <ClInclude Include="flowsheetView.h" />
+    <ClInclude Include="input_dlg.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="object.h" />
-    <ClInclude Include="objectManager.h" />
+    <ClInclude Include="Manager.h" />
+    <ClInclude Include="output_dlg.h" />
+    <ClInclude Include="process_dlg.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -198,12 +202,16 @@
     <ClInclude Include="unit.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="decision_dlg.cpp" />
     <ClCompile Include="flowsheet.cpp" />
     <ClCompile Include="flowsheetDoc.cpp" />
     <ClCompile Include="flowsheetView.cpp" />
+    <ClCompile Include="input_dlg.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="object.cpp" />
-    <ClCompile Include="objectManager.cpp" />
+    <ClCompile Include="Manager.cpp" />
+    <ClCompile Include="output_dlg.cpp" />
+    <ClCompile Include="process_dlg.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

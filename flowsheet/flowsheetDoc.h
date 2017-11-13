@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include "objectManager.h"
+#include "Manager.h"
 
 class CflowsheetDoc : public CDocument
 {
@@ -13,7 +13,7 @@ protected: // 仅从序列化创建
 
 // 特性
 public:
-	objectManager obm;
+	Manager manager;
 	int x, y;
 // 操作
 public:

@@ -42,13 +42,25 @@
     <ClInclude Include="object.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="objectManager.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="toolbar.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="unit.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Manager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="input_dlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="output_dlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="process_dlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="decision_dlg.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -71,13 +83,25 @@
     <ClCompile Include="object.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="objectManager.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="toolbar.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="unit.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Manager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="input_dlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="output_dlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="process_dlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="decision_dlg.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

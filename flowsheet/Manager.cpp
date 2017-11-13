@@ -1,8 +1,8 @@
 #include "stdafx.h"
-#include "objectManager.h"
+#include "Manager.h"
 #include "unit.h"
 
-objectManager::objectManager() :tb(0, 0) {
+Manager::Manager() :tb(0, 0) {
 	line_establish = false;
 	current_ID = 0;
 
@@ -10,7 +10,7 @@ objectManager::objectManager() :tb(0, 0) {
 	addobject(end_ID, 350, 350);*/
 }
 
-void objectManager::onDraw(CDC* pDC) {
+void Manager::onDraw(CDC* pDC) {
 	for (std::vector<object*>::iterator it = unitArray.begin(); it != unitArray.end(); it++) {
 		object* temp = *it;
 		temp->onDraw(pDC);
@@ -24,7 +24,7 @@ void objectManager::onDraw(CDC* pDC) {
 	tb.onDraw(pDC);
 }
 
-int objectManager::onPress(int x, int y) {
+int Manager::onPress(int x, int y) {
 	/*for (std::vector<arrowline*>::iterator it = lineArray.begin(); it != lineArray.end(); it++) {
 		arrowline* temp = *it;
 		int r = temp->onPress(x, y);
@@ -32,10 +32,11 @@ int objectManager::onPress(int x, int y) {
 	}*/
 	int re = tb.onPress(x, y);
 	if (re != 0) {
-		re = addobject(re, x, y);
-		if (re == 1) {
-			unitArray.back()->hold = true;
-			unitArray.back()->curse = true;
+		int tempid = IDARRAY[re - 1];		//取第re个图元按钮所对应的图元创建ID
+		re = addobject(tempid, x, y);
+		if (re == 1) {						//创建成功
+			unitArray.back()->hold = true;	//可以拖拽
+			unitArray.back()->curse = true;	//拥有焦点
 			return 1;
 		}
 	}
@@ -64,7 +65,7 @@ int objectManager::onPress(int x, int y) {
 	return 0;
 }
 
-int objectManager::onMove(int dx, int dy) {
+int Manager::onMove(int dx, int dy) {
 	/*for (std::vector<arrowline*>::iterator it = lineArray.begin(); it != lineArray.end(); it++) {
 		arrowline* temp = *it;
 		int r = temp->onMove(x, y);
@@ -77,14 +78,14 @@ int objectManager::onMove(int dx, int dy) {
 
 	for (std::vector<object*>::iterator it = unitArray.begin(); it != unitArray.end(); it++) {
 		object* temp = *it;
-		int r = temp->onMove(dx, dy);
-		if (r) return 1;			//更新画面
+		int re = temp->onMove(dx, dy);
+		if (re) return 1;			//更新画面
 	}
 
 	return 0;
 }
 
-int objectManager::onRelease(int x,int y) {
+int Manager::onRelease(int x,int y) {
 	bool judge = false;		//判断释放释放在连接点上
 
 	for (std::vector<object*>::iterator it = unitArray.begin(); it != unitArray.end(); it++) {
@@ -118,7 +119,15 @@ int objectManager::onRelease(int x,int y) {
 	}*/
 }
 
-int objectManager::findCurse(int &id) {
+int Manager::onDBclick(int x, int y) {
+	for (std::vector<object*>::iterator it = unitArray.begin(); it != unitArray.end(); it++) {
+		object* temp = *it;
+		temp->onDBclick(x, y);
+	}
+	return 0;
+}
+
+int Manager::findCurse(int &id) {
 	for (std::vector<object*>::iterator it = unitArray.begin(); it != unitArray.end(); it++) {
 		object* temp = *it;
 		if (temp->curse) {
@@ -138,7 +147,7 @@ int objectManager::findCurse(int &id) {
 	return 0;			//没找到
 }
 
-int objectManager::onKey(int ch) {
+int Manager::onKey(int ch) {
 	switch (ch) {
 	case 46:
 		int id;
@@ -151,7 +160,7 @@ int objectManager::onKey(int ch) {
 	return 0;
 }
 
-int objectManager::addobject(int object_ID, int x, int y, int color, int width) {
+int Manager::addobject(int object_ID, int x, int y, int color, int width) {
 	object* temp = onCreate(object_ID, x, y, color, width);
 	if (temp != NULL) {
 		unitArray.push_back(temp);
@@ -160,8 +169,8 @@ int objectManager::addobject(int object_ID, int x, int y, int color, int width) 
 	return 0;
 }
 
-int objectManager::addline(int x1, int y1, int color, int width) {
-	arrowline* temp=(arrowline*)onCreate(arrowline_ID, x1, y1, color, width);//创建出一条线
+int Manager::addline(int x1, int y1, int color, int width) {
+	arrowline* temp=(arrowline*)onCreate(ARROWLINE_ID, x1, y1, color, width);//创建出一条线
 	if (temp != NULL) {
 		lineArray.push_back(temp);
 		return 1;
@@ -169,7 +178,7 @@ int objectManager::addline(int x1, int y1, int color, int width) {
 	return 0;
 }
 
-void objectManager::deleteobject(int ID) {		//删除指定ID的图元
+void Manager::deleteobject(int ID) {		//删除指定ID的图元
 	for (std::vector<object*>::iterator it = unitArray.begin(); it != unitArray.end(); it++) {
 		object* temp = *it;
 		if (temp->getID()==ID) {
@@ -183,7 +192,7 @@ void objectManager::deleteobject(int ID) {		//删除指定ID的图元
 	}
 }
 
-void objectManager::deleteline(int ID) {		//删除指定ID的连接线
+void Manager::deleteline(int ID) {		//删除指定ID的连接线
 	for (std::vector<arrowline*>::iterator it = lineArray.begin(); it != lineArray.end(); it++) {
 		arrowline* temp = *it;
 		if (temp->getID() == ID) {
@@ -194,7 +203,7 @@ void objectManager::deleteline(int ID) {		//删除指定ID的连接线
 	}
 }
 
-void objectManager::connectOToL(object* o, int opid, arrowline* l, int lpid) {
+void Manager::connectOToL(object* o, int opid, arrowline* l, int lpid) {
 	o->op[opid]->al = l;
 	o->op[opid]->toward = lpid;
 
@@ -208,7 +217,7 @@ void objectManager::connectOToL(object* o, int opid, arrowline* l, int lpid) {
 	}
 }
 
-object* objectManager::onCreate(int object_ID, int x, int y, int color, int width) {
+object* Manager::onCreate(int object_ID, int x, int y, int color, int width) {
 	switch (object_ID) {
 	case START_ID:
 		return new start_box(current_ID++, x, y, color, width);

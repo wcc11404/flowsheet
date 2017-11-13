@@ -68,7 +68,7 @@ int toolbar::onPress(int x, int y) {
 			yy += 20;
 		}
 	}
-	return re;
+	return re;		//0代表没有点到任何按钮，其他数字代表点击到第re个图元按钮
 }
 
 int toolbar::onRelease(int x, int y) {

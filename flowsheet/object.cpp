@@ -6,7 +6,7 @@ objectpoint::objectpoint(int x, int y) {
 	this->y = y;
 	al = NULL;
 	toward = 0;
-	r = 5;		//在点附近半径为r的区域点击都算
+	radius = 5;		//在点附近半径为r的区域点击都算
 }
 
 int objectpoint::onPress(int x, int y) {
@@ -15,7 +15,7 @@ int objectpoint::onPress(int x, int y) {
 
 	double r = sqrt(dx*dx + dy*dy);
 
-	if (r <= this->r) {
+	if (r <= radius) {
 		return 1;
 	}
 	return 0;

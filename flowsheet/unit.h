@@ -1,5 +1,10 @@
 #pragma once
 #include "object.h"
+#include "input_dlg.h"
+#include "output_dlg.h"
+#include "process_dlg.h"
+#include "decision_dlg.h"
+#include <map>
 
 class input_box : public object
 {
@@ -11,6 +16,9 @@ public:
 	int onPress(int x, int y);
 	int onMove(int dx, int dy);
 	int onRelease(int x, int y);
+	int onDBclick(int x, int y);
+private:
+	std::map<std::string, double> iden;
 };
 
 class output_box : public object
@@ -23,6 +31,9 @@ public:
 	int onPress(int x, int y);
 	int onMove(int dx, int dy);
 	int onRelease(int x, int y);
+	int onDBclick(int x, int y);
+private:
+	std::string str;
 };
 
 class process_box : public object
@@ -35,6 +46,9 @@ public:
 	int onPress(int x, int y);
 	int onMove(int dx, int dy);
 	int onRelease(int x, int y);
+	int onDBclick(int x, int y);
+private:
+	std::string str;
 };
 
 class decision_box : public object
@@ -47,4 +61,7 @@ public:
 	int onPress(int x, int y);
 	int onMove(int dx, int dy);
 	int onRelease(int x, int y);
+	int onDBclick(int x, int y);
+private:
+	std::string str;
 };

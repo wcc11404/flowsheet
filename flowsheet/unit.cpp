@@ -53,12 +53,26 @@ int input_box::onRelease(int x, int y) {
 	return 0;
 }
 
+int input_box::onDBclick(int x, int y) {
+	if (x >= left&&x <= right&&y >= up&&y <= down) {
+		input_dlg input;
+		input.init(&iden);
+		input.DoModal();
+		return 1;
+	}
+	return 0;
+}
+
 /************************************         输出框         **********************************************/
 output_box::output_box(int ID, int x, int y, int color, int width)
-	: object(ID, x - 50, y - 25, x + 50, y + 25, color, width) {}
+	: object(ID, x - 50, y - 25, x + 50, y + 25, color, width) {
+	str = "";
+}
 
 output_box::output_box(int ID, int Left, int Up, int Width, int Height, int color, int width)
-	: object(ID, Left, Up, Left + Width, Up + Height, color, width) {}
+	: object(ID, Left, Up, Left + Width, Up + Height, color, width) {
+	str = "";
+}
 
 void output_box::onDraw(CDC* pDC) {
 	pDC->SelectObject(pen);
@@ -105,12 +119,26 @@ int output_box::onRelease(int x, int y) {
 	return 0;
 }
 
+int output_box::onDBclick(int x, int y) {
+	if (x >= left&&x <= right&&y >= up&&y <= down) {
+		output_dlg output;
+		output.str = &str;
+		output.DoModal();
+		return 1;
+	}
+	return 0;
+}
+
 /************************************         处理框         **********************************************/
 process_box::process_box(int ID, int x, int y, int color, int width)
-	:object(ID, x - 50, y - 25, x + 50, y + 25, color, width) {}
+	:object(ID, x - 50, y - 25, x + 50, y + 25, color, width) {
+	str = "";
+}
 
 process_box::process_box(int ID, int Left, int Up, int Width, int Height, int color, int width)
-	: object(ID, Left, Up, Left + Width, Up + Height, color, width) {}
+	: object(ID, Left, Up, Left + Width, Up + Height, color, width) {
+	str = "";
+}
 
 void process_box::onDraw(CDC* pDC) {
 	pDC->SelectObject(pen);
@@ -157,12 +185,26 @@ int process_box::onRelease(int x, int y) {
 	return 0;
 }
 
+int process_box::onDBclick(int x, int y) {
+	if (x >= left&&x <= right&&y >= up&&y <= down) {
+		process_dlg process;
+		process.str = &str;
+		process.DoModal();
+		return 1;
+	}
+	return 0;
+}
+
 /************************************        判断框         **********************************************/
 decision_box::decision_box(int ID, int x, int y, int color, int width)
-	:object(ID, x - 50, y - 25, x + 50, y + 25, color, width) {}
+	:object(ID, x - 50, y - 25, x + 50, y + 25, color, width) {
+	str = "";
+}
 
 decision_box::decision_box(int ID, int Left, int Up, int Width, int Height, int color, int width)
-	: object(ID, Left, Up, Left + Width, Up + Height, color, width) {}
+	: object(ID, Left, Up, Left + Width, Up + Height, color, width) {
+	str = "";
+}
 
 void decision_box::onDraw(CDC* pDC) {
 	pDC->SelectObject(pen);
@@ -205,6 +247,16 @@ int decision_box::onRelease(int x, int y) {
 	hold = false;
 	for (int i = 0; i < 4; i++) {
 		if (op[i]->onRelease(x, y)) return i + 1;	//释放到连接点则返回连接点下标+1
+	}
+	return 0;
+}
+
+int decision_box::onDBclick(int x, int y) {
+	if (x >= left&&x <= right&&y >= up&&y <= down) {
+		decision_dlg decision;
+		decision.str = &str;
+		decision.DoModal();
+		return 1;
 	}
 	return 0;
 }

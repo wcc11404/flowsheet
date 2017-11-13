@@ -83,7 +83,7 @@ void CflowsheetView::OnDraw(CDC* pDC)
 	//你也可以用自己应该用的颜色 
 	MemDC.FillSolidRect(0, 0, lpRect->right - lpRect->left, lpRect->bottom - lpRect->top, RGB(255, 255, 255));
 
-	GetDocument()->obm.onDraw(&MemDC);
+	GetDocument()->manager.onDraw(&MemDC);
 
 	pDC->BitBlt(0, 0, lpRect->right - lpRect->left, lpRect->bottom - lpRect->top, &MemDC, 0, 0, SRCCOPY);
 
@@ -148,13 +148,9 @@ BOOL CflowsheetView::OnEraseBkgnd(CDC* pDC)
 void CflowsheetView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
-	int re=GetDocument()->obm.onPress(point.x, point.y);
-	/*char temp[80];
-	sprintf(temp, "%d", re);
-	MessageBox(temp);*/
+	if (GetDocument()->manager.onPress(point.x, point.y)) Invalidate();
 	GetDocument()->x = point.x;
 	GetDocument()->y = point.y;
-	if (re != 0)	Invalidate();
 	CView::OnLButtonDown(nFlags, point);
 }
 
@@ -162,9 +158,7 @@ void CflowsheetView::OnLButtonDown(UINT nFlags, CPoint point)
 void CflowsheetView::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
-	int re=GetDocument()->obm.onRelease(point.x, point.y);
-	if(re)
-		Invalidate();
+	if(GetDocument()->manager.onRelease(point.x, point.y)) Invalidate();
 	CView::OnLButtonUp(nFlags, point);
 }
 
@@ -172,7 +166,7 @@ void CflowsheetView::OnLButtonUp(UINT nFlags, CPoint point)
 void CflowsheetView::OnLButtonDblClk(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
-
+	if (GetDocument()->manager.onDBclick(point.x, point.y)) Invalidate();
 	CView::OnLButtonDblClk(nFlags, point);
 }
 
@@ -180,12 +174,9 @@ void CflowsheetView::OnLButtonDblClk(UINT nFlags, CPoint point)
 void CflowsheetView::OnMouseMove(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
-	int re=GetDocument()->obm.onMove(point.x - GetDocument()->x, point.y - GetDocument()->y);
-	if (re) {
-		Invalidate();
-		GetDocument()->x = point.x;
-		GetDocument()->y = point.y;
-	}
+	if (GetDocument()->manager.onMove(point.x - GetDocument()->x, point.y - GetDocument()->y)) Invalidate();
+	GetDocument()->x = point.x;
+	GetDocument()->y = point.y;
 	CView::OnMouseMove(nFlags, point);
 }
 
@@ -193,9 +184,7 @@ void CflowsheetView::OnMouseMove(UINT nFlags, CPoint point)
 void CflowsheetView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
-	int re=GetDocument()->obm.onKey(nChar);
-	if (re)
-		Invalidate();
+	if (GetDocument()->manager.onKey(nChar)) Invalidate();
 	/*char temp[80];
 	sprintf(temp, "%d", nChar);
 	MessageBox(temp);*/

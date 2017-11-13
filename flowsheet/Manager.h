@@ -3,7 +3,7 @@
 #include "object.h"
 #include "toolbar.h"
 
-class objectManager
+class Manager
 {
 public:
 	std::vector<object*> unitArray;
@@ -17,23 +17,25 @@ public:
 	#define DECISION_ID 6
 	#define ARROWLINE_ID 10
 
-	const int start_ID = 1;
+	const int IDARRAY[6] = { START_ID ,END_ID ,INPUT_ID ,OUTPUT_ID ,PROCESS_ID , DECISION_ID };
+	/*const int start_ID = 1;
 	const int end_ID = 2;
 	const int input_ID = 3;
 	const int output_ID = 4;
 	const int process_ID = 5;
 	const int decision_ID = 6;
-	const int arrowline_ID = 10;
+	const int arrowline_ID = 10;*/
 
 	toolbar tb;
 	
-	objectManager();
+	Manager();
 
 	void onDraw(CDC* pDC);
 	int onPress(int x, int y);		//  鼠标按下
 	int onMove(int dx, int dy);		//  鼠标移动
-	int onRelease(int x, int y);		//  鼠标释放
-	int onKey(int ch);
+	int onRelease(int x, int y);	//  鼠标释放
+	int onKey(int ch);				//  按键按下
+	int onDBclick(int x, int y);	//  鼠标双击
 	int findCurse(int &id);
 	
 	//std::string onSave() { return ""; }

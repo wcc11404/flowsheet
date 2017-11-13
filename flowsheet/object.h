@@ -7,7 +7,7 @@ class objectpoint
 public:
 	int x;
 	int y;
-	int r;
+	int radius;
 	arrowline* al;
 	int toward;		//0代表没有线，1代表入，2代表出
 
@@ -35,9 +35,10 @@ public:
 	int getID() { return ID; }
 
 	virtual void onDraw(CDC* pDC) {}
-	virtual int onPress(int x, int y) { return 0; }		//  鼠标按下
+	virtual int onPress(int x, int y) { return 0; }			//  鼠标按下
 	virtual int onMove(int dx, int dy) { return 0; }		//  鼠标移动
 	virtual int onRelease(int x, int y) { return 0; }		//  鼠标释放
+	virtual int onDBclick(int x, int y) { return 0; }		//  鼠标双击
 	virtual std::string onSave() { return ""; }
 
 private:
