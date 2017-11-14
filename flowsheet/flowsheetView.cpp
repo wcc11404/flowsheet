@@ -33,6 +33,7 @@ BEGIN_MESSAGE_MAP(CflowsheetView, CView)
 	ON_WM_MOUSEMOVE()
 ON_WM_KEYUP()
 ON_COMMAND(ID_32771, &CflowsheetView::OnBuild)
+ON_COMMAND(ID_32772, &CflowsheetView::OnClearBuild)
 END_MESSAGE_MAP()
 
 // CflowsheetView 构造/析构
@@ -197,5 +198,13 @@ void CflowsheetView::OnBuild()
 {
 	// TODO: 在此添加命令处理程序代码
 	GetDocument()->manager.onBuild();
+	Invalidate();
+}
+
+
+void CflowsheetView::OnClearBuild()
+{
+	// TODO: 在此添加命令处理程序代码
+	GetDocument()->manager.onClearBuild();
 	Invalidate();
 }

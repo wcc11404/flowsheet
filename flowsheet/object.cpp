@@ -128,7 +128,7 @@ int start_box::onRelease(int x, int y) {
 }
 
 int start_box::onBuild(std::queue<object*>* q) {
-	error = false;
+	//error = false;
 
 	if (op[2]->toward == 1) {
 		q->push(op[2]->al->o_out);
@@ -201,7 +201,7 @@ int end_box::onRelease(int x, int y) {
 }
 
 int end_box::onBuild(std::queue<object*>* q) {
-	error = false;
+	//error = false;
 
 	if (op[0]->toward == 2)
 		return 0;

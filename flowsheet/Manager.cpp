@@ -133,6 +133,7 @@ int Manager::onDBclick(int x, int y) {
 }
 
 int Manager::onBuild() {
+	onClearBuild();
 	bool pass = true;
 
 	bool startexist = false;
@@ -161,7 +162,15 @@ int Manager::onBuild() {
 		}*/
 	}
 
-	if (!pass) return 1;	//多于一个开始框
+	if (!pass) {					//多于一个开始框
+		for (std::vector<object*>::iterator it = unitArray.begin(); it != unitArray.end(); it++) {
+			object* temp = *it;
+			if (temp->type == START_ID) {
+				temp->error = true;
+			}
+		}
+		return 1;
+	}
 	if (!startexist) return 1;	//没有开始框
 
 	
@@ -179,6 +188,19 @@ int Manager::onBuild() {
 
 	if (!pass) return 1;		//编译出错
 	return 0;				//编译通过
+}
+
+int Manager::onClearBuild() {
+	for (std::vector<object*>::iterator it = unitArray.begin(); it != unitArray.end(); it++) {
+		object* temp = *it;
+		temp->error = false;
+	}
+
+	for (std::vector<arrowline*>::iterator it = lineArray.begin(); it != lineArray.end(); it++) {
+		arrowline* temp = *it;
+		temp->error = false;
+	}
+	return 0;
 }
 
 int Manager::findCurse(int &id) {

@@ -30,7 +30,8 @@ public:
 	int onKey(int ch);				//  按键按下
 	int onDBclick(int x, int y);	//  鼠标双击
 
-	int onBuild();					//  编译链接
+	int onBuild();					//  生成解决方案
+	int onClearBuild();				//	清理解决方案
 
 	int findCurse(int &id);			//  查找拥有焦点的图元或者连线
 	

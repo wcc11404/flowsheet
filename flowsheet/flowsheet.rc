@@ -144,6 +144,7 @@ BEGIN
     POPUP "生成(&B)"
     BEGIN
         MENUITEM "生成解决方案(&B)",                  ID_32771
+        MENUITEM "清理解决方案(&R)",                  ID_32772
     END
 END
 

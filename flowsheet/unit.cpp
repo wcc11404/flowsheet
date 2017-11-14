@@ -67,7 +67,7 @@ int input_box::onDBclick(int x, int y) {
 }
 
 int input_box::onBuild(std::queue<object*>* q) {
-	error = false;
+	//error = false;
 
 	int innum = 0;
 	int outnum = 0;
@@ -172,7 +172,7 @@ int output_box::onDBclick(int x, int y) {
 }
 
 int output_box::onBuild(std::queue<object*>* q) {
-	error = false;
+	//error = false;
 
 	int innum = 0;
 	int outnum = 0;
@@ -277,7 +277,7 @@ int process_box::onDBclick(int x, int y) {
 }
 
 int process_box::onBuild(std::queue<object*>* q) {
-	error = false;
+	//error = false;
 
 	int innum = 0;
 	int outnum = 0;
@@ -382,7 +382,7 @@ int decision_box::onDBclick(int x, int y) {
 }
 
 int decision_box::onBuild(std::queue<object*>* q) {
-	error = false;
+	//error = false;
 
 	int innum = 0;
 	int outnum = 0;
