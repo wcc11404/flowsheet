@@ -23,4 +23,6 @@ protected:
 public:
 	afx_msg void OnBnClickedButton1();
 	std::string* str;
+	bool* show;
+	double* value;
 };

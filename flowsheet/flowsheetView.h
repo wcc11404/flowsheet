@@ -49,6 +49,7 @@ public:
 	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnBuild();
 	afx_msg void OnClearBuild();
+	afx_msg void OnRuning();
 };
 
 #ifndef _DEBUG  // flowsheetView.cpp 中的调试版本

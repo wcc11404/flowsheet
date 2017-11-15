@@ -66,16 +66,16 @@ int input_box::onDBclick(int x, int y) {
 	return 0;
 }
 
-int input_box::onBuild(std::queue<object*>* q) {
+int input_box::onBuild(std::queue<object*>* q, Analyze* analyze) {
 	//error = false;
 
 	int innum = 0;
-	int outnum = 0;
+	//int outnum = 0;
 	for (int i = 0; i < 4; i++) {
 		if (op[i]->toward == 1)
 			innum++;
-		else if (op[i]->toward == 2)
-			outnum++;
+		/*else if (op[i]->toward == 2)
+			outnum++;*/
 	}
 
 	if (innum != 1) {
@@ -92,15 +92,36 @@ int input_box::onBuild(std::queue<object*>* q) {
 		}
 	}
 
-	if (outnum != 1) {
+	/*if (outnum != 1) {
 		error = true;
 		for (int i = 0; i < 4; i++) {
 			if (op[i]->toward == 2)
 				op[i]->al->error = true;
 		}
-	}
+	}*/
 	
 	if (error) return 1;
+
+	if (iden.size() == 0) {
+		error = true;
+		return 1;
+	}
+		
+	return 0;
+}
+
+int input_box::onRuning(object** obj, Analyze* analyze) {
+	Analyze::identify(&iden);
+	
+	for (int i = 0; i < 4; i++) {
+		if (op[i]->toward == 1) {
+			*obj = op[i]->al->o_out;
+			break;
+		}
+	}
+
+	run = true;
+
 	return 0;
 }
 
@@ -109,11 +130,15 @@ output_box::output_box(int ID, int x, int y, int color, int width)
 	: object(ID, x - 50, y - 25, x + 50, y + 25, color, width) {
 	str = "";
 	type = OUTPUT;
+	show = false;
+	value = 0;
 }
 output_box::output_box(int ID, int Left, int Up, int Width, int Height, int color, int width)
 	: object(ID, Left, Up, Left + Width, Up + Height, color, width) {
 	str = "";
 	type = OUTPUT;
+	show = false;
+	value = 0;
 }
 
 void output_box::onDraw(CDC* pDC) {
@@ -165,22 +190,24 @@ int output_box::onDBclick(int x, int y) {
 	if (x >= left&&x <= right&&y >= up&&y <= down) {
 		output_dlg output;
 		output.str = &str;
+		output.value = &value;
+		output.show = &show;
 		output.DoModal();
 		return 1;
 	}
 	return 0;
 }
 
-int output_box::onBuild(std::queue<object*>* q) {
+int output_box::onBuild(std::queue<object*>* q, Analyze* analyze) {
 	//error = false;
 
 	int innum = 0;
-	int outnum = 0;
+	/*int outnum = 0;*/
 	for (int i = 0; i < 4; i++) {
 		if (op[i]->toward == 1)
 			innum++;
-		else if (op[i]->toward == 2)
-			outnum++;
+		/*else if (op[i]->toward == 2)
+			outnum++;*/
 	}
 
 	if (innum != 1) {
@@ -197,15 +224,38 @@ int output_box::onBuild(std::queue<object*>* q) {
 		}
 	}
 
-	if (outnum != 1) {
+	/*if (outnum != 1) {
 		error = true;
 		for (int i = 0; i < 4; i++) {
 			if (op[i]->toward == 2)
 				op[i]->al->error = true;
 		}
-	}
+	}*/
 
 	if (error) return 1;
+
+	if (str == "") {
+		error = true;
+		return 1;
+	}
+		
+	return 0;
+}
+
+int output_box::onRuning(object** obj, Analyze* analyze) {
+	double num=Analyze::findIdenValue(str);
+	value = num;
+	show = true;
+	
+	for (int i = 0; i < 4; i++) {
+		if (op[i]->toward == 1) {
+			*obj = op[i]->al->o_out;
+			break;
+		}
+	}
+
+	run = true;
+
 	return 0;
 }
 
@@ -276,16 +326,16 @@ int process_box::onDBclick(int x, int y) {
 	return 0;
 }
 
-int process_box::onBuild(std::queue<object*>* q) {
+int process_box::onBuild(std::queue<object*>* q, Analyze* analyze) {
 	//error = false;
 
 	int innum = 0;
-	int outnum = 0;
+	/*int outnum = 0;*/
 	for (int i = 0; i < 4; i++) {
 		if (op[i]->toward == 1)
 			innum++;
-		else if (op[i]->toward == 2)
-			outnum++;
+		/*else if (op[i]->toward == 2)
+			outnum++;*/
 	}
 
 	if (innum != 1) {
@@ -302,15 +352,38 @@ int process_box::onBuild(std::queue<object*>* q) {
 		}
 	}
 
-	if (outnum != 1) {
+	/*if (outnum != 1) {
 		error = true;
 		for (int i = 0; i < 4; i++) {
 			if (op[i]->toward == 2)
 				op[i]->al->error = true;
 		}
-	}
+	}*/
 
 	if (error) return 1;
+
+	//´¦Àí´úÂë
+	int re = analyze->inspectStr(str);
+	if (re > 0) {
+		error = true;
+		return re;
+	}
+	return 0;
+}
+
+int process_box::onRuning(object** obj, Analyze* analyze) {
+	analyze->inspectStr(str);
+	analyze->calculate();
+
+	for (int i = 0; i < 4; i++) {
+		if (op[i]->toward == 1) {
+			*obj = op[i]->al->o_out;
+			break;
+		}
+	}
+
+	run = true;
+
 	return 0;
 }
 
@@ -319,11 +392,13 @@ decision_box::decision_box(int ID, int x, int y, int color, int width)
 	:object(ID, x - 50, y - 25, x + 50, y + 25, color, width) {
 	str = "";
 	type = DECISION;
+	memset(judge, 0, sizeof(judge));
 }
 decision_box::decision_box(int ID, int Left, int Up, int Width, int Height, int color, int width)
 	: object(ID, Left, Up, Left + Width, Up + Height, color, width) {
 	str = "";
 	type = DECISION;
+	memset(judge, 0, sizeof(judge));
 }
 
 void decision_box::onDraw(CDC* pDC) {
@@ -375,22 +450,23 @@ int decision_box::onDBclick(int x, int y) {
 	if (x >= left&&x <= right&&y >= up&&y <= down) {
 		decision_dlg decision;
 		decision.str = &str;
+		decision.judge = judge;
 		decision.DoModal();
 		return 1;
 	}
 	return 0;
 }
 
-int decision_box::onBuild(std::queue<object*>* q) {
+int decision_box::onBuild(std::queue<object*>* q, Analyze* analyze) {
 	//error = false;
 
 	int innum = 0;
-	int outnum = 0;
+	/*int outnum = 0;*/
 	for (int i = 0; i < 4; i++) {
 		if (op[i]->toward == 1)
 			innum++;
-		else if (op[i]->toward == 2)
-			outnum++;
+		/*else if (op[i]->toward == 2)
+			outnum++;*/
 	}
 
 	if (innum != 2) {
@@ -413,14 +489,45 @@ int decision_box::onBuild(std::queue<object*>* q) {
 		}
 	}
 
-	if (outnum != 1) {
+	/*if (outnum != 1) {
 		error = true;
 		for (int i = 0; i < 4; i++) {
 			if (op[i]->toward == 2)
 				op[i]->al->error = true;
 		}
-	}
+	}*/
 
 	if (error) return 1;
+
+	int sum = 0;
+	for (int i = 0; i < 4; i++) {
+		sum += judge[i];
+	}
+	if (sum != 3) {
+		error = true;
+		return 1;
+	}
+
+	int re=analyze->inspectStr(str);
+	if (re > 0) {
+		error = true;
+		return re;
+	}
+	return 0;
+}
+
+int decision_box::onRuning(object** obj, Analyze* analyze) {
+	analyze->inspectStr(str);
+	int num=analyze->calculate()->num;
+
+	for (int i = 0; i < 4; i++) {
+		if (judge[i]==num+1) {
+			*obj = op[i]->al->o_out;
+			break;
+		}
+	}
+
+	run = true;
+
 	return 0;
 }

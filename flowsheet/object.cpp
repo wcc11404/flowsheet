@@ -40,6 +40,7 @@ object::object(int ID, int Left, int Up, int Right, int Down, int color, int wid
 	pen.CreatePen(PS_SOLID, width, color);
 	cursepen.CreatePen(PS_SOLID, width + 1, RGB(34, 177, 76));
 	errorpen.CreatePen(PS_SOLID, width + 1, RGB(255, 0, 0));
+	runpen.CreatePen(PS_SOLID, width + 1, RGB(131, 175, 155));
 	left = Left;
 	up = Up;
 	right = Right;
@@ -47,6 +48,7 @@ object::object(int ID, int Left, int Up, int Right, int Down, int color, int wid
 	hold = false;
 	curse = false;
 	error = false;
+	run = false;
 	
 	op[0] = new objectpoint((Left + Right) / 2, Up);
 	op[1] = new objectpoint(Left, (Up + Down) / 2);
@@ -69,6 +71,9 @@ void object::offset(int dx, int dy) {
 void object::onDraw(CDC* pDC) {
 	if (error) {
 		pDC->SelectObject(errorpen);
+	}
+	else if (run) {
+		pDC->SelectObject(runpen);
 	}
 	else if (curse && !hold) {
 		pDC->SelectObject(cursepen);
@@ -127,7 +132,7 @@ int start_box::onRelease(int x, int y) {
 	return op[2]->onRelease(x, y)==1?2+1:0;		//释放到连接点则返回连接点下标+1
 }
 
-int start_box::onBuild(std::queue<object*>* q) {
+int start_box::onBuild(std::queue<object*>* q, Analyze* analyze) {
 	//error = false;
 
 	if (op[2]->toward == 1) {
@@ -141,6 +146,12 @@ int start_box::onBuild(std::queue<object*>* q) {
 		return 1;
 	}
 		
+}
+
+int start_box::onRuning(object** obj, Analyze* analyze) {
+	*obj = op[2]->al->o_out;
+	run = true;
+	return 0;
 }
 
 std::string start_box::onSave() {
@@ -200,7 +211,7 @@ int end_box::onRelease(int x, int y) {
 	return op[0]->onRelease(x, y)==1?0+1:0;		//释放到连接点则返回连接点下标+1
 }
 
-int end_box::onBuild(std::queue<object*>* q) {
+int end_box::onBuild(std::queue<object*>* q, Analyze* analyze) {
 	//error = false;
 
 	if (op[0]->toward == 2)
@@ -210,6 +221,12 @@ int end_box::onBuild(std::queue<object*>* q) {
 		return 1;
 	}
 		
+}
+
+int end_box::onRuning(object** obj, Analyze* analyze) {
+	*obj = NULL;
+	run = true;
+	return 0;
 }
 
 std::string end_box::onSave() {

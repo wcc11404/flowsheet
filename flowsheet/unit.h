@@ -17,7 +17,8 @@ public:
 	int onMove(int dx, int dy);
 	int onRelease(int x, int y);
 	int onDBclick(int x, int y);
-	int onBuild(std::queue<object*>* q);
+	int onBuild(std::queue<object*>* q, Analyze* analyze);
+	int onRuning(object** obj, Analyze* analyze);
 private:
 	std::map<std::string, double> iden;
 };
@@ -33,9 +34,12 @@ public:
 	int onMove(int dx, int dy);
 	int onRelease(int x, int y);
 	int onDBclick(int x, int y);
-	int onBuild(std::queue<object*>* q);
+	int onBuild(std::queue<object*>* q, Analyze* analyze);
+	int onRuning(object** obj, Analyze* analyze);
 private:
 	std::string str;
+	double value;
+	bool show;
 };
 
 class process_box : public object
@@ -49,7 +53,8 @@ public:
 	int onMove(int dx, int dy);
 	int onRelease(int x, int y);
 	int onDBclick(int x, int y);
-	int onBuild(std::queue<object*>* q);
+	int onBuild(std::queue<object*>* q, Analyze* analyze);
+	int onRuning(object** obj, Analyze* analyze);
 private:
 	std::string str;
 };
@@ -65,7 +70,9 @@ public:
 	int onMove(int dx, int dy);
 	int onRelease(int x, int y);
 	int onDBclick(int x, int y);
-	int onBuild(std::queue<object*>* q);
+	int onBuild(std::queue<object*>* q, Analyze* analyze);
+	int onRuning(object** obj, Analyze* analyze);
 private:
 	std::string str;
+	int judge[4];
 };

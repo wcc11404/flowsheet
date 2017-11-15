@@ -185,6 +185,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="analyze.h" />
     <ClInclude Include="decision_dlg.h" />
     <ClInclude Include="flowsheet.h" />
     <ClInclude Include="flowsheetDoc.h" />
@@ -202,6 +203,7 @@
     <ClInclude Include="unit.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="analyze.cpp" />
     <ClCompile Include="decision_dlg.cpp" />
     <ClCompile Include="flowsheet.cpp" />
     <ClCompile Include="flowsheetDoc.cpp" />

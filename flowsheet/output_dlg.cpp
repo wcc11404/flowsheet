@@ -30,6 +30,11 @@ BOOL output_dlg::OnInitDialog() {
 	CDialog::OnInitDialog();
 
 	GetDlgItem(variable_name_o)->SetWindowTextA(str->c_str());
+	if (*show) {
+		char temp[80];
+		sprintf(temp, "%g", *value);
+		GetDlgItem(variable_value_O)->SetWindowTextA(temp);
+	}
 
 	return true;
 }

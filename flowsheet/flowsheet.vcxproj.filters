@@ -63,6 +63,9 @@
     <ClInclude Include="decision_dlg.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="analyze.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="flowsheet.cpp">
@@ -102,6 +105,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="decision_dlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="analyze.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

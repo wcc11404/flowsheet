@@ -1,6 +1,8 @@
 #pragma once
 #include "stdafx.h"
 #include <queue>
+#include "analyze.h"
+
 class arrowline;
 
 class objectpoint
@@ -27,13 +29,15 @@ public:
 	CPen pen;		//正常绘画时所用画笔
 	CPen cursepen;	//拥有焦点时所用画笔
 	CPen errorpen;	//编译出错时所用画笔
-	objectpoint *op[4];
+	CPen runpen;	//运行高亮时所用画笔
+	objectpoint *op[4];	//四个连接点
 
 	//图元类型
 	enum { OBJECT = 0, START = 1, END = 2, INPUT = 3, OUTPUT = 4, PROCESS = 5, DECISION = 6, ARROWLINE = 10 }type;
 	bool error;		//编译是否出错
 	bool hold;		//是否可拖动
 	bool curse;		//焦点
+	bool run;
 	object(int ID, int Left, int Up, int Right, int Down, int color, int width);
 
 	void onSize(int l, int r, int u, int d);				//改变大小暂时没用
@@ -45,7 +49,8 @@ public:
 	virtual int onMove(int dx, int dy) { return 0; }		//  鼠标移动
 	virtual int onRelease(int x, int y) { return 0; }		//  鼠标释放
 	virtual int onDBclick(int x, int y) { return 0; }		//  鼠标双击
-	virtual int onBuild(std::queue<object*>* q) { return 0; }
+	virtual int onBuild(std::queue<object*>* q,Analyze* analyze) { return 0; }
+	virtual int onRuning(object** obj, Analyze* analyze) { return 0; }
 	virtual std::string onSave() { return ""; }
 
 private:
@@ -62,7 +67,8 @@ public:
 	int onPress(int x, int y);
 	int onMove(int dx, int dy);
 	int onRelease(int x, int y);
-	int onBuild(std::queue<object*>* q);
+	int onBuild(std::queue<object*>* q, Analyze* analyze);
+	int onRuning(object** obj, Analyze* analyze);
 	std::string onSave();
 };
 
@@ -76,7 +82,8 @@ public:
 	int onPress(int x, int y);
 	int onMove(int dx, int dy);
 	int onRelease(int x, int y);
-	int onBuild(std::queue<object*>* q);
+	int onBuild(std::queue<object*>* q, Analyze* analyze);
+	int onRuning(object** obj, Analyze* analyze);
 	std::string onSave();
 };
 

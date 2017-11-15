@@ -30,7 +30,30 @@ BOOL decision_dlg::OnInitDialog() {
 	CDialog::OnInitDialog();
 
 	GetDlgItem(judge_code)->SetWindowTextA(str->c_str());
+	CComboBox* m_cbExamble = (CComboBox*)GetDlgItem(combo1);
+	m_cbExamble->AddString("¿Õ");
+	m_cbExamble->AddString("·ñ");
+	m_cbExamble->AddString("ÊÇ");
+	m_cbExamble->SetCurSel(judge[0]);
 
+	m_cbExamble = (CComboBox*)GetDlgItem(combo2);
+	m_cbExamble->AddString("¿Õ");
+	m_cbExamble->AddString("·ñ");
+	m_cbExamble->AddString("ÊÇ");
+	m_cbExamble->SetCurSel(judge[1]);
+
+	m_cbExamble = (CComboBox*)GetDlgItem(combo3);
+	m_cbExamble->AddString("¿Õ");
+	m_cbExamble->AddString("·ñ");
+	m_cbExamble->AddString("ÊÇ");
+	m_cbExamble->SetCurSel(judge[2]);
+
+	m_cbExamble = (CComboBox*)GetDlgItem(combo4);
+	m_cbExamble->AddString("¿Õ");
+	m_cbExamble->AddString("·ñ");
+	m_cbExamble->AddString("ÊÇ");
+	m_cbExamble->SetCurSel(judge[3]);
+	
 	return true;
 }
 
@@ -48,4 +71,13 @@ void decision_dlg::OnBnClickedButton1()
 	char temp[80];
 	GetDlgItem(judge_code)->GetWindowTextA(temp, sizeof(temp));
 	(*str) = temp;
+
+	CComboBox* m_cbExamble = (CComboBox*)GetDlgItem(combo1);
+	judge[0] = m_cbExamble->GetCurSel();
+	m_cbExamble = (CComboBox*)GetDlgItem(combo2);
+	judge[1] = m_cbExamble->GetCurSel();
+	m_cbExamble = (CComboBox*)GetDlgItem(combo3);
+	judge[2] = m_cbExamble->GetCurSel();
+	m_cbExamble = (CComboBox*)GetDlgItem(combo4);
+	judge[3] = m_cbExamble->GetCurSel();
 }

@@ -181,9 +181,13 @@ int Manager::onBuild() {
 	while (Queue.size() != 0) {
 		object* temp = Queue.front();
 		Queue.pop();
-		if (temp->onBuild(&Queue)) {
-			pass = false;
+		if (idset.find(temp->getID()) == idset.end()) {
+			idset.insert(temp->getID());
+			if (temp->onBuild(&Queue,&analyze)) {		//检查错误并入队
+				pass = false;
+			}
 		}
+		
 	}
 
 	if (!pass) return 1;		//编译出错
@@ -201,6 +205,26 @@ int Manager::onClearBuild() {
 		temp->error = false;
 	}
 	return 0;
+}
+
+int Manager::onRuning() {
+	if (onBuild())
+		return 1;
+
+	object* obj;
+	for (std::vector<object*>::iterator it = unitArray.begin(); it != unitArray.end(); it++) {
+		object* temp = *it;
+		if (temp->type == START_ID) {
+			obj = temp;
+			break;
+		}
+	}
+
+	while (obj != NULL) {
+		object* temp;
+		obj->onRuning(&temp,&analyze);
+		obj = temp;
+	}
 }
 
 int Manager::findCurse(int &id) {

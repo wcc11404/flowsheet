@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "object.h"
 #include "toolbar.h"
+#include "analyze.h"
 
 class Manager
 {
@@ -20,7 +21,8 @@ public:
 	const int IDARRAY[6] = { START_ID ,END_ID ,INPUT_ID ,OUTPUT_ID ,PROCESS_ID , DECISION_ID };
 
 	toolbar tb;		//左上角画板
-	
+	Analyze analyze;	//分析器
+
 	Manager();
 
 	void onDraw(CDC* pDC);			//  画图
@@ -32,6 +34,7 @@ public:
 
 	int onBuild();					//  生成解决方案
 	int onClearBuild();				//	清理解决方案
+	int onRuning();
 
 	int findCurse(int &id);			//  查找拥有焦点的图元或者连线
 	
