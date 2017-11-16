@@ -17,6 +17,7 @@
 #endif
 
 #include "object.h"
+#include <fstream>
 // CflowsheetView
 
 IMPLEMENT_DYNCREATE(CflowsheetView, CView)
@@ -35,6 +36,10 @@ ON_WM_KEYUP()
 ON_COMMAND(ID_32771, &CflowsheetView::OnBuild)
 ON_COMMAND(ID_32772, &CflowsheetView::OnClearBuild)
 ON_COMMAND(ID_32773, &CflowsheetView::OnRuning)
+ON_COMMAND(ID_FILE_SAVE, &CflowsheetView::OnFileSave)
+ON_COMMAND(ID_FILE_OPEN, &CflowsheetView::OnFileOpen)
+ON_COMMAND(ID_FILE_NEW, &CflowsheetView::OnFileNew)
+ON_COMMAND(ID_32774, &CflowsheetView::OnClearRuning)
 END_MESSAGE_MAP()
 
 // CflowsheetView 构造/析构
@@ -151,7 +156,8 @@ BOOL CflowsheetView::OnEraseBkgnd(CDC* pDC)
 void CflowsheetView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
-	if (GetDocument()->manager.onPress(point.x, point.y)) Invalidate();
+	GetDocument()->manager.onPress(point.x, point.y);
+	Invalidate();
 	GetDocument()->x = point.x;
 	GetDocument()->y = point.y;
 	CView::OnLButtonDown(nFlags, point);
@@ -169,7 +175,8 @@ void CflowsheetView::OnLButtonUp(UINT nFlags, CPoint point)
 void CflowsheetView::OnLButtonDblClk(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
-	if (GetDocument()->manager.onDBclick(point.x, point.y)) Invalidate();
+	GetDocument()->manager.onDBclick(point.x, point.y);
+	Invalidate();
 	CView::OnLButtonDblClk(nFlags, point);
 }
 
@@ -215,5 +222,67 @@ void CflowsheetView::OnRuning()
 {
 	// TODO: 在此添加命令处理程序代码
 	GetDocument()->manager.onRuning();
+	Invalidate();
+}
+
+
+void CflowsheetView::OnFileSave()
+{
+	// TODO: 在此添加命令处理程序代码
+	BOOL isOpen = FALSE;		//是否打开(否则为保存) 
+	CString defaultDir = "C:\\Users\\cheng\\Desktop";	//默认打开的文件路径
+	CString fileName = "test";			//默认打开的文件名
+										//CString filter = "文件 (*.doc; *.ppt; *.xls)|*.doc;*.ppt;*.xls||";	//文件过虑的类型
+	CString filter = "文件 (*.dbp)|*.dbp||";
+	CFileDialog openFileDlg(isOpen, defaultDir, fileName, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, filter, NULL);
+	//openFileDlg.GetOFN().lpstrInitialDir = "E:\\FileTest\\test";
+	INT_PTR result = openFileDlg.DoModal();
+	CString filePath = defaultDir + "\\" + fileName;
+	if (result == IDOK) {
+		filePath = openFileDlg.GetPathName();
+
+		std::ofstream out(filePath);
+		GetDocument()->manager.onSave(out);
+		out.close();
+	}
+}
+
+
+void CflowsheetView::OnFileOpen()
+{
+	// TODO: 在此添加命令处理程序代码
+	BOOL isOpen = TRUE;		//是否打开(否则为保存) 
+	CString defaultDir = "C:\\Users\\cheng\\Desktop";	//默认打开的文件路径
+	CString fileName = "test";			//默认打开的文件名
+										//CString filter = "文件 (*.doc; *.ppt; *.xls)|*.doc;*.ppt;*.xls||";	//文件过虑的类型
+	CString filter = "文件 (*.dbp)|*.dbp||";
+	CFileDialog openFileDlg(isOpen, defaultDir, fileName, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, filter, NULL);
+	//openFileDlg.GetOFN().lpstrInitialDir = "E:\\FileTest\\test";
+	INT_PTR result = openFileDlg.DoModal();
+	CString filePath = defaultDir + "\\" + fileName;
+	if (result == IDOK) {
+		filePath = openFileDlg.GetPathName();
+
+		std::ifstream in(filePath);
+		GetDocument()->manager.onOpen(in);
+		in.close();
+
+		Invalidate();
+	}
+}
+
+
+void CflowsheetView::OnFileNew()
+{
+	// TODO: 在此添加命令处理程序代码
+	GetDocument()->manager.onClear();
+	Invalidate();
+}
+
+
+void CflowsheetView::OnClearRuning()
+{
+	// TODO: 在此添加命令处理程序代码
+	GetDocument()->manager.onClearRuning();
 	Invalidate();
 }

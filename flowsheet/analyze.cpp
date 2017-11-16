@@ -283,6 +283,8 @@ int Analyze::inspectStr(std::string s) {
 		return EXPERROR;
 	str = s;
 	string_replace(str, " ", "");
+	string_replace(str, "\r", "");
+	string_replace(str, "\n", "");
 	if (str[str.size() - 1] != ';')
 		str.insert(str.end(),';');
 	isInspectSuccess = true;
@@ -475,6 +477,5 @@ node* Analyze::deal(node* op, node* op1, node* op2) {
 		}
 		return new node(0.0);
 	}
-
 	return new node(0.0);
 }

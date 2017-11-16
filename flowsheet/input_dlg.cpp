@@ -65,5 +65,6 @@ void input_dlg::OnBnClickedButton1()
 	std::stringstream ss(dbtemp);
 	double db=0;
 	ss >> db;
+	(*iden).clear();
 	(*iden)[strtemp] = db;
 }

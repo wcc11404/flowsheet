@@ -146,6 +146,7 @@ BEGIN
         MENUITEM "生成解决方案(&B)",                  ID_32771
         MENUITEM "清理解决方案(&R)",                  ID_32772
         MENUITEM "生成并运行(&S)",                   ID_32773
+        MENUITEM "清理运行结果(&Z)",                  ID_32774
     END
 END
 

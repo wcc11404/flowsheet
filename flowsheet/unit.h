@@ -5,6 +5,7 @@
 #include "process_dlg.h"
 #include "decision_dlg.h"
 #include <map>
+#include <fstream>
 
 class input_box : public object
 {
@@ -19,6 +20,8 @@ public:
 	int onDBclick(int x, int y);
 	int onBuild(std::queue<object*>* q, Analyze* analyze);
 	int onRuning(object** obj, Analyze* analyze);
+	std::string onSave();
+	int onRead(std::ifstream &in);
 private:
 	std::map<std::string, double> iden;
 };
@@ -36,10 +39,14 @@ public:
 	int onDBclick(int x, int y);
 	int onBuild(std::queue<object*>* q, Analyze* analyze);
 	int onRuning(object** obj, Analyze* analyze);
+	std::string onSave();
+	int onRead(std::ifstream &in);
+
+	bool show;
 private:
 	std::string str;
 	double value;
-	bool show;
+	
 };
 
 class process_box : public object
@@ -55,6 +62,8 @@ public:
 	int onDBclick(int x, int y);
 	int onBuild(std::queue<object*>* q, Analyze* analyze);
 	int onRuning(object** obj, Analyze* analyze);
+	std::string onSave();
+	int onRead(std::ifstream &in);
 private:
 	std::string str;
 };
@@ -72,6 +81,8 @@ public:
 	int onDBclick(int x, int y);
 	int onBuild(std::queue<object*>* q, Analyze* analyze);
 	int onRuning(object** obj, Analyze* analyze);
+	std::string onSave();
+	int onRead(std::ifstream &in);
 private:
 	std::string str;
 	int judge[4];

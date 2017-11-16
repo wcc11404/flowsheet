@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "object.h"
+#include <sstream>
 
 objectpoint::objectpoint(int x, int y) {
 	this->x = x;
@@ -32,6 +33,10 @@ void objectpoint::offset(int dx, int dy) {
 	if(al!=NULL) al->change_d(toward, dx, dy);
 }
 
+void objectpoint::onDraw(CDC* pDC) {
+	pDC->SelectObject(new CPen(PS_SOLID, 1, RGB(0,0,0)));
+	pDC->Rectangle(x - 3, y - 3, x + 3, y + 3);
+}
 /******************************     object     *********************************************/
 object::object(int ID, int Left, int Up, int Right, int Down, int color, int width) {
 	this->ID = ID;
@@ -40,7 +45,7 @@ object::object(int ID, int Left, int Up, int Right, int Down, int color, int wid
 	pen.CreatePen(PS_SOLID, width, color);
 	cursepen.CreatePen(PS_SOLID, width + 1, RGB(34, 177, 76));
 	errorpen.CreatePen(PS_SOLID, width + 1, RGB(255, 0, 0));
-	runpen.CreatePen(PS_SOLID, width + 1, RGB(131, 175, 155));
+	runpen.CreatePen(PS_SOLID, width + 1, RGB(141, 254, 29));
 	left = Left;
 	up = Up;
 	right = Right;
@@ -96,13 +101,15 @@ start_box::start_box(int ID, int Left, int Up, int Width, int Height, int color,
 void start_box::onDraw(CDC *pDC) {
 	object::onDraw(pDC);
 	//pDC->SelectStockObject(NULL_BRUSH);		//透明填充
-	//pDC->Ellipse(left, up, right, down);
 	pDC->RoundRect(left, up, right, down, (down - up) , (down - up) );
+
 	pDC->SetBkMode(TRANSPARENT);
 	CFont fontGrade;
 	fontGrade.CreatePointFont(100, "宋体");
 	pDC->SelectObject(&fontGrade);
 	pDC->DrawTextA("开 始", &CRect(left, up, right, down), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+
+	op[2]->onDraw(pDC);
 }
 
 int start_box::onPress(int x, int y) {
@@ -150,15 +157,16 @@ int start_box::onBuild(std::queue<object*>* q, Analyze* analyze) {
 
 int start_box::onRuning(object** obj, Analyze* analyze) {
 	*obj = op[2]->al->o_out;
+	op[2]->al->run = true;
 	run = true;
 	return 0;
 }
 
 std::string start_box::onSave() {
 	std::string str = "";
-	/*stringstream ss;
-	ss << "1 " << left << " " << up << " " << right << " " << down << " " << color << " " << width;
-	str = ss.str();*/
+	std::stringstream ss;
+	ss << type << " " << getID() << " " << left << " " << up << " " << right << " " << down << " " << color << " " << width << std::endl;
+	str = ss.str();
 	return str;
 }
 
@@ -177,11 +185,14 @@ void end_box::onDraw(CDC *pDC) {
 	//pDC->SelectStockObject(NULL_BRUSH);		//透明填充
 	//pDC->Ellipse(left, up, right, down);
 	pDC->RoundRect(left, up, right, down, (down - up), (down - up));
+
 	pDC->SetBkMode(TRANSPARENT);
 	CFont fontGrade;
 	fontGrade.CreatePointFont(100, "宋体");
 	pDC->SelectObject(&fontGrade);
 	pDC->DrawTextA("结 束", &CRect(left, up, right, down), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+
+	op[0]->onDraw(pDC);
 }
 
 int end_box::onPress(int x, int y) {
@@ -231,9 +242,9 @@ int end_box::onRuning(object** obj, Analyze* analyze) {
 
 std::string end_box::onSave() {
 	std::string str = "";
-	/*stringstream ss;
-	ss << "1 " << left << " " << up << " " << right << " " << down << " " << color << " " << width;
-	str = ss.str();*/
+	std::stringstream ss;
+	ss << type << " " << getID() << " " << left << " " << up << " " << right << " " << down << " " << color << " " << width << std::endl;
+	str = ss.str();
 	return str;
 }
 
@@ -273,10 +284,19 @@ void arrowline::onDraw(CDC *pDC) {
 }
 
 int arrowline::onPress(int x, int y) {
-
 	if (onTheLine(left, up, right, down, x, y)) {
 		curse = true;
-		hold= true;
+		//hold= true;
+		return 1;
+	}
+	else if (onTheLine(lx, ly, right, down, x, y)) {
+		curse = true;
+		//hold = true;
+		return 1;
+	}
+	else if (onTheLine(rx, ry, right, down, x, y)) {
+		curse = true;
+		//hold = true;
 		return 1;
 	}
 	curse = false;
@@ -300,10 +320,26 @@ int arrowline::onRelease(int x, int y) {
 
 std::string arrowline::onSave() {
 	std::string str = "";
-	/*stringstream ss;
-	ss << "5 " << left << " " << up << " " << right << " " << down << " " << color << " " << width;
-	str = ss.str();*/
+	std::stringstream ss;
+	ss << type << " " << getID() << " " << left << " " << up << " " << right << " " << down << " " << color << " " << width << std::endl;
+	if (o_in != NULL) {
+		ss << o_in->getID() << " " << num_in << std::endl;
+	}
+	else {
+		ss << "-1" << std::endl;
+	}
+	if (o_out != NULL) {
+		ss << o_out->getID() << " " << num_out << std::endl;
+	}
+	else {
+		ss << "-1" << std::endl;
+	}
+	str = ss.str();
 	return str;
+}
+
+int arrowline::onRead(std::ifstream &in) {
+	return 0;
 }
 
 void arrowline::change(int type, int x, int y) {

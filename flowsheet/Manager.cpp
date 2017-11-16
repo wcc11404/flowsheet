@@ -3,13 +3,11 @@
 #include "unit.h"
 #include <set>
 #include <queue>
+#include <sstream>
 
-Manager::Manager() :tb(0, 0) {
+Manager::Manager() :tb(0, 80) {
 	line_establish = false;
 	current_ID = 0;
-
-	/*addobject(start_ID, 250, 250);
-	addobject(end_ID, 350, 350);*/
 }
 
 void Manager::onDraw(CDC* pDC) {
@@ -27,11 +25,6 @@ void Manager::onDraw(CDC* pDC) {
 }
 
 int Manager::onPress(int x, int y) {
-	/*for (std::vector<arrowline*>::iterator it = lineArray.begin(); it != lineArray.end(); it++) {
-		arrowline* temp = *it;
-		int r = temp->onPress(x, y);
-		if (r) return 1;
-	}*/
 	int retu = 0;
 
 	int re = tb.onPress(x, y);
@@ -43,6 +36,12 @@ int Manager::onPress(int x, int y) {
 			unitArray.back()->curse = true;	//拥有焦点
 			retu = 1;
 		}
+	}
+
+	for (std::vector<arrowline*>::iterator it = lineArray.begin(); it != lineArray.end(); it++) {
+		arrowline* temp = *it;
+		int re = temp->onPress(x, y);
+		if(re!=0) retu = re;
 	}
 
 	for (std::vector<object*>::iterator it = unitArray.begin(); it != unitArray.end(); it++) {
@@ -101,13 +100,16 @@ int Manager::onRelease(int x,int y) {
 			//强制对齐
 			lineArray.back()->change(2, temp->op[re - 1]->x, temp->op[re - 1]->y);
 			
-			connectOToL(temp, re - 1, lineArray.back(), 2);
-			judge = true;
+			if (temp->op[re - 1]->toward == 0) {
+				connectOToL(temp, re - 1, lineArray.back(), 2);
+				judge = true;
+			}
 		}
 	}
 
 	if (line_establish) {
 		arrowline* altemp = lineArray.back();
+		altemp->curse = true;
 		if (altemp->o_in->op[altemp->num_in]->onRelease(x,y)) {
 			deleteline(current_ID - 1);		//删除正在创建的连接线
 		}
@@ -116,6 +118,8 @@ int Manager::onRelease(int x,int y) {
 		}
 		line_establish = false;
 	}
+
+	
 	return 1;								//更新画面
 
 	/*for (std::vector<object*>::iterator it = lineArray.begin(); it != lineArray.end(); it++) {
@@ -208,6 +212,8 @@ int Manager::onClearBuild() {
 }
 
 int Manager::onRuning() {
+	onClearRuning();
+
 	if (onBuild())
 		return 1;
 
@@ -225,6 +231,116 @@ int Manager::onRuning() {
 		obj->onRuning(&temp,&analyze);
 		obj = temp;
 	}
+	return 0;
+}
+
+int Manager::onClearRuning() {
+	for (std::vector<object*>::iterator it = unitArray.begin(); it != unitArray.end(); it++) {
+		object* temp = *it;
+		if ((*it)->type == OUTPUT_ID) {
+			((output_box*)(*it))->show = false;
+		}
+		temp->error = false;
+		temp->run = false;
+	}
+
+	for (std::vector<arrowline*>::iterator it = lineArray.begin(); it != lineArray.end(); it++) {
+		arrowline* temp = *it;
+		temp->error = false;
+		temp->run = false;
+	}
+
+	Analyze::identable.clear();
+	return 0;
+}
+
+int Manager::onSave(std::ofstream& out) {
+	for (std::vector<object*>::iterator it = unitArray.begin(); it != unitArray.end(); it++) {
+		object* temp = *it;
+		out << temp->onSave() ;
+	}
+	for (std::vector<arrowline*>::iterator it = lineArray.begin(); it != lineArray.end(); it++) {
+		arrowline* temp = *it;
+		out << temp->onSave() ;
+	}
+	return 0;
+}
+
+int Manager::onOpen(std::ifstream& in) {
+	onClear();
+
+	int maxid = 0;
+	while (!in.eof()) {
+		char temp[80];
+		in.getline(temp, sizeof(temp));
+		if (strcmp(temp, "") == 0) {
+			break;
+		}
+		std::stringstream ss(temp);
+		int type, id, l, u, r, d, c, w;
+		ss >> type >> id >> l >> u >> r >> d >> c >> w;
+		maxid = maxid < id ? id : maxid;
+		object* t;
+		switch (type) {
+		case START_ID:
+			t = new start_box(id, l, u, r - l, d - u, c, w);
+			t->onRead(in);
+			unitArray.push_back(t);
+			break;
+		case END_ID:
+			t = new end_box(id, l, u, r - l, d - u, c, w);
+			t->onRead(in);
+			unitArray.push_back(t);
+			break;
+		case INPUT_ID:
+			t = new input_box(id, l, u, r - l, d - u, c, w);
+			t->onRead(in);
+			unitArray.push_back(t);
+			break;
+		case OUTPUT_ID:
+			t = new output_box(id, l, u, r - l, d - u, c, w);
+			t->onRead(in);
+			unitArray.push_back(t);
+			break;
+		case PROCESS_ID:
+			t = new process_box(id, l, u, r - l, d - u, c, w);
+			t->onRead(in);
+			unitArray.push_back(t);
+			break;
+		case DECISION_ID:
+			t = new decision_box(id, l, u, r - l, d - u, c, w);
+			t->onRead(in);
+			unitArray.push_back(t);
+			break;
+		case ARROWLINE_ID:
+			arrowline* a = new arrowline(id, l, u, r, d, c, w);
+			lineArray.push_back(a);
+			int id1, id2, op1, op2;
+
+			in.getline(temp, sizeof(temp));
+			std::stringstream ss1(temp);
+			ss1 >> id1 >> op1;
+			object* o1 = findID(id1);
+			connectOToL(o1, op1, a, 1);
+
+			in.getline(temp, sizeof(temp));
+			std::stringstream ss2(temp);
+			ss2 >> id2 >> op2;
+			object* o2 = findID(id2);
+			connectOToL(o2, op2, a, 2);
+
+			break;
+		}
+	}
+	return 0;
+}
+
+int Manager::onClear() {
+	unitArray.clear();
+	lineArray.clear();
+	current_ID = 0;
+	line_establish = false;
+	return 0;
 }
 
 int Manager::findCurse(int &id) {
@@ -245,6 +361,20 @@ int Manager::findCurse(int &id) {
 	}
 
 	return 0;			//没找到
+}
+
+object* Manager::findID(int id) {
+	for (std::vector<object*>::iterator it = unitArray.begin(); it != unitArray.end(); it++) {
+		object* temp = *it;
+		if (temp->getID() == id)
+			return temp;
+	}
+	for (std::vector<arrowline*>::iterator it = lineArray.begin(); it != lineArray.end(); it++) {
+		arrowline* temp = *it;
+		if (temp->getID() == id)
+			return temp;
+	}
+	return NULL;
 }
 
 int Manager::onKey(int ch) {
@@ -332,7 +462,7 @@ object* Manager::onCreate(int object_ID, int x, int y, int color, int width) {
 	case DECISION_ID:
 		return new decision_box(current_ID++, x, y, color, width);
 	case ARROWLINE_ID:
-		return new arrowline(current_ID++, x, y, x, y, color, width);
+		return new arrowline(current_ID++, x, y, x+1, y+1, color, width);
 	}
 	return NULL;
 }

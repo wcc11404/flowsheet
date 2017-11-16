@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "unit.h"
+#include <sstream>
 
 /************************************          ‰»ÎøÚ         **********************************************/
 input_box::input_box(int ID, int x, int y, int color, int width)
@@ -14,12 +15,33 @@ input_box::input_box(int ID, int Left, int Up, int Width, int Height, int color,
 void input_box::onDraw(CDC* pDC) {
 	object::onDraw(pDC);
 	//pDC->SelectStockObject(NULL_BRUSH);		//Õ∏√˜ÃÓ≥‰
-	pDC->Rectangle(left, up, right, down);
+	//pDC->Rectangle(left, up, right, down);
+	pDC->MoveTo(left, up + (down - up) / 3);
+	pDC->LineTo(left, down);
+	pDC->LineTo(right, down);
+	pDC->LineTo(right, up);
+	pDC->LineTo(left, up + (down - up) / 3);
+
 	pDC->SetBkMode(TRANSPARENT);
 	CFont fontGrade;
 	fontGrade.CreatePointFont(100, "ÀŒÃÂ");
 	pDC->SelectObject(&fontGrade);
-	pDC->DrawTextA(" ‰»ÎøÚ", &CRect(left, up, right, down), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+	if (iden.size() == 0) {
+		pDC->DrawTextA(" ‰»ÎøÚ", &CRect(left, up, right, down), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+	}
+	else {
+		char temp[80];
+		for (std::map<std::string, double>::iterator it = iden.begin(); it != iden.end(); it++) {
+			sprintf(temp, "%s=%g", it->first.c_str(), it->second);
+		}
+		CString stemp(temp);
+		pDC->DrawTextA(stemp, &CRect(left, up, right, down), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+	}
+	
+
+	for (int i = 0; i < 4; i++) {
+		op[i]->onDraw(pDC);
+	}
 }
 
 int input_box::onPress(int x, int y) {
@@ -116,12 +138,42 @@ int input_box::onRuning(object** obj, Analyze* analyze) {
 	for (int i = 0; i < 4; i++) {
 		if (op[i]->toward == 1) {
 			*obj = op[i]->al->o_out;
+			op[i]->al->run = true;
 			break;
 		}
 	}
 
 	run = true;
 
+	return 0;
+}
+
+std::string input_box::onSave() {
+	std::string str = "";
+	std::stringstream ss;
+	ss << type << " " << getID() << " " << left << " " << up << " " << right << " " << down << " " << color << " " << width << std::endl;
+	ss << iden.size() << std::endl;
+	for (std::map<std::string, double>::iterator it = iden.begin(); it != iden.end(); it++) {
+		ss << it->first << " " << it->second << std::endl;
+	}
+	str = ss.str();
+	return str;
+}
+
+int input_box::onRead(std::ifstream &in) {
+	char temp[80];
+	in.getline(temp, sizeof(temp));
+	std::stringstream ss(temp);
+	int size = 0;
+	ss >> size;
+	while (size--) {
+		std::string name;
+		double value;
+		in.getline(temp, sizeof(temp));
+		std::stringstream ss1(temp);
+		ss1 >> name >> value;
+		iden[name] = value;
+	}
 	return 0;
 }
 
@@ -144,12 +196,27 @@ output_box::output_box(int ID, int Left, int Up, int Width, int Height, int colo
 void output_box::onDraw(CDC* pDC) {
 	object::onDraw(pDC);
 	//pDC->SelectStockObject(NULL_BRUSH);		//Õ∏√˜ÃÓ≥‰
-	pDC->Rectangle(left, up, right, down);
+	//pDC->Rectangle(left, up, right, down);
+	pDC->Ellipse(left, up, right, down);
+
 	pDC->SetBkMode(TRANSPARENT);
 	CFont fontGrade;
 	fontGrade.CreatePointFont(100, "ÀŒÃÂ");
 	pDC->SelectObject(&fontGrade);
-	pDC->DrawTextA(" ‰≥ˆøÚ", &CRect(left, up, right, down), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+	if(str=="")
+		pDC->DrawTextA(" ‰≥ˆøÚ", &CRect(left, up, right, down), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+	else {
+		CString temp;
+		if (show)
+			temp.Format("%s=%g", str.c_str(), value);
+		else
+			temp.Format("%s", str.c_str());
+		pDC->DrawTextA(temp, &CRect(left, up, right, down), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+	}
+
+	for (int i = 0; i < 4; i++) {
+		op[i]->onDraw(pDC);
+	}
 }
 
 int output_box::onPress(int x, int y) {
@@ -250,6 +317,7 @@ int output_box::onRuning(object** obj, Analyze* analyze) {
 	for (int i = 0; i < 4; i++) {
 		if (op[i]->toward == 1) {
 			*obj = op[i]->al->o_out;
+			op[i]->al->run = true;
 			break;
 		}
 	}
@@ -259,9 +327,31 @@ int output_box::onRuning(object** obj, Analyze* analyze) {
 	return 0;
 }
 
+std::string output_box::onSave() {
+	std::string str = "";
+	std::stringstream ss;
+	ss << type << " " << getID() << " " << left << " " << up << " " << right << " " << down << " " << color << " " << width << std::endl;
+	if (this->str == "")
+		ss << "-1";
+	else
+		ss << this->str ;
+	ss << std::endl;
+	str = ss.str();
+	return str;
+}
+
+int output_box::onRead(std::ifstream &in) {
+	char temp[80];
+	in.getline(temp, sizeof(temp));
+	std::string tem= temp;
+	if (tem != "-1")
+		this->str = tem;
+	return 0;
+}
+
 /************************************         ¥¶¿ÌøÚ         **********************************************/
 process_box::process_box(int ID, int x, int y, int color, int width)
-	:object(ID, x - 50, y - 25, x + 50, y + 25, color, width) {
+	:object(ID, x - 60, y - 30, x + 60, y + 30, color, width) {
 	str = "";
 	type = PROCESS;
 }
@@ -275,11 +365,21 @@ void process_box::onDraw(CDC* pDC) {
 	object::onDraw(pDC);
 	//pDC->SelectStockObject(NULL_BRUSH);		//Õ∏√˜ÃÓ≥‰
 	pDC->Rectangle(left, up, right, down);
+
 	pDC->SetBkMode(TRANSPARENT);
 	CFont fontGrade;
 	fontGrade.CreatePointFont(100, "ÀŒÃÂ");
 	pDC->SelectObject(&fontGrade);
-	pDC->DrawTextA("¥¶¿ÌøÚ", &CRect(left, up, right, down), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+	if (str == "")
+		pDC->DrawTextA("¥¶¿ÌøÚ", &CRect(left, up, right, down), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+	else {
+		pDC->DrawTextA(str.c_str(), &CRect(left, up, right, down), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+	}
+	
+
+	for (int i = 0; i < 4; i++) {
+		op[i]->onDraw(pDC);
+	}
 }
 
 int process_box::onPress(int x, int y) {
@@ -368,6 +468,7 @@ int process_box::onBuild(std::queue<object*>* q, Analyze* analyze) {
 		error = true;
 		return re;
 	}
+	
 	return 0;
 }
 
@@ -378,6 +479,7 @@ int process_box::onRuning(object** obj, Analyze* analyze) {
 	for (int i = 0; i < 4; i++) {
 		if (op[i]->toward == 1) {
 			*obj = op[i]->al->o_out;
+			op[i]->al->run = true;
 			break;
 		}
 	}
@@ -387,9 +489,31 @@ int process_box::onRuning(object** obj, Analyze* analyze) {
 	return 0;
 }
 
+std::string process_box::onSave() {
+	std::string str = "";
+	std::stringstream ss;
+	ss << type << " " << getID() << " " << left << " " << up << " " << right << " " << down << " " << color << " " << width << std::endl;
+	if (this->str == "")
+		ss << "-1";
+	else
+		ss << this->str;
+	ss << std::endl;
+	str = ss.str();
+	return str;
+}
+
+int process_box::onRead(std::ifstream &in) {
+	char temp[80];
+	in.getline(temp, sizeof(temp));
+	std::string tem = temp;
+	if (tem != "-1")
+		this->str = tem;
+	return 0;
+}
+
 /************************************        ≈–∂œøÚ         **********************************************/
 decision_box::decision_box(int ID, int x, int y, int color, int width)
-	:object(ID, x - 50, y - 25, x + 50, y + 25, color, width) {
+	:object(ID, x - 70, y - 35, x + 70, y + 35, color, width) {
 	str = "";
 	type = DECISION;
 	memset(judge, 0, sizeof(judge));
@@ -404,12 +528,42 @@ decision_box::decision_box(int ID, int Left, int Up, int Width, int Height, int 
 void decision_box::onDraw(CDC* pDC) {
 	object::onDraw(pDC);
 	//pDC->SelectStockObject(NULL_BRUSH);		//Õ∏√˜ÃÓ≥‰
-	pDC->Rectangle(left, up, right, down);
+	//pDC->Rectangle(left, up, right, down);
+	pDC->MoveTo((left + right) / 2, up);
+	pDC->LineTo(left, (up + down) / 2);
+	pDC->LineTo((left + right) / 2, down);
+	pDC->LineTo(right, (up + down) / 2);
+	pDC->LineTo((left + right) / 2, up);
+
 	pDC->SetBkMode(TRANSPARENT);
 	CFont fontGrade;
 	fontGrade.CreatePointFont(100, "ÀŒÃÂ");
 	pDC->SelectObject(&fontGrade);
-	pDC->DrawTextA("≈–∂œøÚ", &CRect(left, up, right, down), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+	if (str == "")
+		pDC->DrawTextA("≈–∂œøÚ", &CRect(left, up, right, down), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+	else {
+		pDC->DrawTextA(str.c_str(), &CRect(left, up, right, down), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+	}
+	CString temp[2];
+	temp[0] = "∑Ò";
+	temp[1] = " «";
+	if (judge[0] != 0) {
+		pDC->DrawTextA(temp[judge[0] - 1], &CRect(op[0]->x - 10, op[0]->y - 12 - 10, op[0]->x + 10, op[0]->y - 12 + 10), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+	}
+	if (judge[1] != 0) {
+		pDC->DrawTextA(temp[judge[1] - 1], &CRect(op[1]->x - 12 - 10, op[1]->y - 10, op[1]->x - 12 + 10, op[1]->y + 10), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+	}
+	if (judge[2] != 0) {
+		pDC->DrawTextA(temp[judge[2] - 1], &CRect(op[2]->x - 10, op[2]->y + 12 - 10, op[2]->x + 10, op[2]->y + 12 + 10), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+	}
+	if (judge[3] != 0) {
+		pDC->DrawTextA(temp[judge[3] - 1], &CRect(op[3]->x + 12 - 10, op[3]->y - 10, op[3]->x + 12 + 10, op[3]->y + 10), DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+	}
+	
+
+	for (int i = 0; i < 4; i++) {
+		op[i]->onDraw(pDC);
+	}
 }
 
 int decision_box::onPress(int x, int y) {
@@ -523,11 +677,43 @@ int decision_box::onRuning(object** obj, Analyze* analyze) {
 	for (int i = 0; i < 4; i++) {
 		if (judge[i]==num+1) {
 			*obj = op[i]->al->o_out;
+			op[i]->al->run = true;
 			break;
 		}
 	}
 
 	run = true;
 
+	return 0;
+}
+
+std::string decision_box::onSave() {
+	std::string str = "";
+	std::stringstream ss;
+	ss << type << " " << getID() << " " << left << " " << up << " " << right << " " << down << " " << color << " " << width << std::endl;
+	for (int i = 0; i < 4; i++) {
+		ss << judge[i]<<" ";
+	}
+	ss << std::endl;
+	if (this->str == "")
+		ss << "-1";
+	else
+		ss << this->str;
+	ss << std::endl;
+	str = ss.str();
+	return str;
+}
+
+int decision_box::onRead(std::ifstream &in) {
+	char temp[80];
+	in.getline(temp, sizeof(temp));
+	std::stringstream ss(temp);
+	for (int i = 0; i < 4; i++) {
+		ss >> judge[i];
+	}
+	in.getline(temp, sizeof(temp));
+	std::string tem = temp;
+	if (tem != "-1")
+		this->str = tem;
 	return 0;
 }

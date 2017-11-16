@@ -50,6 +50,10 @@ public:
 	afx_msg void OnBuild();
 	afx_msg void OnClearBuild();
 	afx_msg void OnRuning();
+	afx_msg void OnFileSave();
+	afx_msg void OnFileOpen();
+	afx_msg void OnFileNew();
+	afx_msg void OnClearRuning();
 };
 
 #ifndef _DEBUG  // flowsheetView.cpp 中的调试版本

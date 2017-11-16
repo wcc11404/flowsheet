@@ -8,12 +8,14 @@ public:
 	int bary;
 	int barwidth;
 	int barhight;
+	int maxtool;
 	CPen barpen;
 	CBrush barbrush;
 
 	int buttonwidth;
 	int buttonhight;
 	CPen buttonpen;
+	CPen intervalpen;
 	CBrush buttonbrush;
 	toolbar(int x, int y);
 

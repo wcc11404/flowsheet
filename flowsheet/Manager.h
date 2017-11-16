@@ -3,6 +3,7 @@
 #include "object.h"
 #include "toolbar.h"
 #include "analyze.h"
+#include <fstream>
 
 class Manager
 {
@@ -34,20 +35,24 @@ public:
 
 	int onBuild();					//  生成解决方案
 	int onClearBuild();				//	清理解决方案
-	int onRuning();
+	int onRuning();					//  运行
+	int onClearRuning();			//  清理运行结果
+
+	int onSave(std::ofstream& out);
+	int onOpen(std::ifstream& in);
+	int onClear();
 
 	int findCurse(int &id);			//  查找拥有焦点的图元或者连线
-	
-	//std::string onSave() { return ""; }
+	object* findID(int id);
 
 	//添加图元或连线以及删除图元或连线
-	int addobject(int object_ID, int x, int y, int color = RGB(0, 0, 0), int width = 1);
-	int addline(int x1 = 0, int y1 = 0,int color = RGB(0, 0, 0), int width = 1);
+	int addobject(int object_ID, int x, int y, int color = RGB(0, 0, 0), int width = 2);
+	int addline(int x1 = 0, int y1 = 0,int color = RGB(0, 0, 0), int width = 2);
 	void deleteobject(int ID);
 	void deleteline(int ID);
 
 	//工厂模式建立各种图元以及连线
-	object* onCreate(int object_ID, int x = 0, int y = 0, int color = RGB(0, 0, 0), int width = 1);		
+	object* onCreate(int object_ID, int x = 0, int y = 0, int color = RGB(0, 0, 0), int width = 2);		
 private:
 	int current_ID;			//下一个应该被创建的ID号
 	bool line_establish;	//是否有连接线正在被创建

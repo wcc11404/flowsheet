@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include <queue>
 #include "analyze.h"
+#include <fstream>
 
 class arrowline;
 
@@ -18,6 +19,7 @@ public:
 	int onPress(int x, int y);
 	int onRelease(int x, int y);
 	void offset(int dx, int dy);
+	void onDraw(CDC* pDC);
 };
 
 class object
@@ -52,7 +54,7 @@ public:
 	virtual int onBuild(std::queue<object*>* q,Analyze* analyze) { return 0; }
 	virtual int onRuning(object** obj, Analyze* analyze) { return 0; }
 	virtual std::string onSave() { return ""; }
-
+	virtual int onRead(std::ifstream &in) { return 0; }
 private:
 	int ID;		//图元ID
 };
@@ -87,18 +89,6 @@ public:
 	std::string onSave();
 };
 
-//class unit:public object
-//{
-//public:
-//	unit(int ID, int x, int y, int w, int h, int color, int width);
-//
-//	virtual void onDraw(CDC* pDC) {}
-//	virtual int  onPress(int x, int y) { return 0; }		//  鼠标按下
-//	virtual int onMove(int dx, int dy) { return 0; }		//  鼠标移动
-//	virtual int onRelease(int x, int y) { return 0; }		//  鼠标释放
-//	virtual std::string onSave() { return ""; }
-//};
-
 class arrowline :public object
 {
 public:
@@ -122,6 +112,7 @@ public:
 	void change_d(int type,int dx, int dy);			//线端点值位移，type=1时，改变left和up的值，type=2时改变right和down的值
 	void deleteline();
 	std::string onSave();
+	int onRead(std::ifstream &in);
 
 private:
 	void init(int Angle, int Length);	//初始化
